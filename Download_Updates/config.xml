@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>&lt;h3&gt;Description&lt;/h3&gt;&#xd;
+Downloads Hudson updates from &lt;a href=&quot;https://developer.symbian.org/oss/FCL/interim/fbf/hudson/&quot;/&gt;https://developer.symbian.org/oss/FCL/interim/fbf/hudson/&lt;/a&gt;&#xd;
+&lt;br&gt;&lt;br&gt;&#xd;
+&lt;b&gt;WARNING:&lt;/b&gt; Running this will overwrite any local changes that you may have made. If you wish to preserve a locally modified project, then back it up first</description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.plugins.mercurial.MercurialSCM">
+    <source>https://developer.symbian.org/oss/FCL/interim/fbf/hudson/</source>
+    <modules></modules>
+    <clean>false</clean>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers class="vector"/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.BatchFile>
+      <command>cd /d %HUDSON_HOME%
+IF NOT EXIST %HUDSON_HOME%\downloaded\.hg GOTO CLONECONFIGS
+hg pull -R downloaded 
+hg update -R downloaded 
+GOTO FINISH
+:CLONECONFIGS
+cd /d %HUDSON_HOME%
+hg clone https://developer.symbian.org/oss/FCL/interim/fbf/hudson/ downloaded
+:FINISH
+xcopy /s /y downloaded jobs
+exit 0</command>
+    </hudson.tasks.BatchFile>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>
