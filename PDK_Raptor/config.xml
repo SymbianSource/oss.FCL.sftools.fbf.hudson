@@ -1,0 +1,287 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>&lt;h3&gt;Description&lt;/h3&gt;&#xd;
+&lt;li&gt;This project will rebuild the Symbian^2 and Symbian^3 Platform from source using a Bill Of Materials that can be downloaded from the &lt;a href=&quot;http://developer.symbian.org/main/tools_and_kits/&quot;&gt;kits page.&lt;/a&gt;&#xd;
+&lt;li&gt;It encapsulates the steps as defined in the &lt;a href=&quot;http://developer.symbian.org/wiki/index.php/How_to_perform_a_platform_build_of_PDK_3.0.b_using_Raptor&quot;/&gt;manual build process &lt;/a&gt;for Raptor and is a simple way to start building using SBSv2.&#xd;
+&#xd;
+&lt;h3&gt;Prerequisites&lt;/h3&gt;&#xd;
+&lt;li&gt;Installation of mandatory &lt;a href=&quot;http://developer.symbian.org/wiki/index.php/How_to_perform_a_platform_build_of_PDK_3.0.b_using_Raptor#Installing_Build_Tools&quot;/&gt;build tools&lt;/a&gt;&#xd;
+&lt;li&gt;Download of required (and recommended) &lt;a href=&quot;&#xd;
+http://developer.symbian.org/wiki/index.php/How_to_perform_a_platform_build_of_PDK_3.0.b_using_Raptor#Getting_the_Baseline&quot;/&gt;zips &lt;/a&gt; from the &lt;a href=&quot;http://developer.symbian.org/main/tools_and_kits/&quot;&gt;kits page.&lt;/a&gt;&#xd;
+</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>BUILD_DRIVE</name>
+          <description>Physical Build Drive</description>
+          <defaultValue>C:</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>SUBST_DRIVE</name>
+          <description>Subst&apos;d EPOC drive</description>
+          <defaultValue>M:</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>RELEASE_ZIP_LOCATION</name>
+          <description>Location of &lt;a href=&quot;http://developer.symbian.org/main/tools_and_kits/&quot;&gt;release zipfiles&lt;/a&gt; e.g.
+&lt;li&gt;build_BOM.zip
+&lt;li&gt;tools_epoc.zip
+
+</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>REBUILD_TOOLS</name>
+          <description>Tick this box if you want to rebuild &quot;tools&quot; as well (needs VC++ 6.0)</description>
+          <defaultValue>false</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>SPLIT_BUILD</name>
+          <description>Untick this box if the build is not GT/S60 split (only PDK2.0.e is not split at the moment)</description>
+          <defaultValue>true</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>SRC_LOCATION</name>
+          <description>How to get src for building the Platform.
+&lt;li&gt;BOM - download source direct from &lt;a href=&quot;https://developer.symbian.org/oss&quot;&gt;web&lt;/a&gt; using downloaded Bill Of Materials 
+&lt;li&gt;ZIPFILES - unpack source zips such as src_oss_os.zip from specified location on disk</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>BOM</string>
+              <string>ZIPFILES</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>LEGACY_BLDMEFIRST</name>
+          <description>Must be ticked for every baseline prior to PDK 2.0.e</description>
+          <defaultValue>false</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>HG_USERNAME</name>
+          <description>Enter your symbian developer web username &lt;i&gt;(required for download of packages from BOM, not needed when using source zip packages)&lt;/i&gt;</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.PasswordParameterDefinition>
+          <name>HG_PASSWORD</name>
+          <description>Enter your Mercurial symbian developer web password  &lt;i&gt;(required for download of packages from BOM, not needed when using source zip packages)&lt;/i&gt;</description>
+          <defaultValue></defaultValue>
+        </hudson.model.PasswordParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>PLATFORM</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>symbian3</string>
+              <string>symbian2</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>TARGET</name>
+          <description>What target to build. Building armv5 targets requires RVCT arm compiler installed.</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>-c winscw_udeb</string>
+              <string>-c winscw</string>
+              <string>-c armv5_urel</string>
+              <string>-c armv5 -c winscw</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers class="vector"/>
+  <concurrentBuild>true</concurrentBuild>
+  <builders>
+    <hudson.tasks.BatchFile>
+      <command>%BUILD_DRIVE%
+cd\
+mkdir build_%JOB_NAME%.%BUILD_NUMBER%\tmp
+cd build_%JOB_NAME%.%BUILD_NUMBER%
+subst /d %SUBST_DRIVE%
+subst %SUBST_DRIVE% .
+cd %SUBST_DRIVE%
+%SUBST_DRIVE%
+cd %SUBST_DRIVE%\tmp
+hg clone http://developer.symbian.org/oss/MCL/utilities</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>%SUBST_DRIVE%
+cd \
+copy %RELEASE_ZIP_LOCATION%\build_BOM.zip %SUBST_DRIVE%\tmp
+copy %RELEASE_ZIP_LOCATION%\*_rndonly*.zip %SUBST_DRIVE%\tmp
+copy %RELEASE_ZIP_LOCATION%\bin_redist*.zip %SUBST_DRIVE%\tmp
+copy %RELEASE_ZIP_LOCATION%\binaries_epoc_additional.zip %SUBST_DRIVE%\tmp
+copy %RELEASE_ZIP_LOCATION%\binaries_bldmefirst.zip %SUBST_DRIVE%\tmp
+%SUBST_DRIVE%\tmp
+IF %SRC_LOCATION% == BOM goto TOOLSZIP
+copy %RELEASE_ZIP_LOCATION%\src_*.zip %SUBST_DRIVE%\tmp
+:TOOLSZIP
+IF %REBUILD_TOOLS% == true exit 0
+copy %RELEASE_ZIP_LOCATION%\binaries_epoc32_stlport.zip %SUBST_DRIVE%\tmp
+copy %RELEASE_ZIP_LOCATION%\tools_*.zip %SUBST_DRIVE%\tmp
+exit 0</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>%SUBST_DRIVE%
+cd %SUBST_DRIVE%\tmp
+7z x *.zip -o.. -y
+cd..
+7z x *.zip -y
+del *.zip
+exit 0</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>IF NOT %SRC_LOCATION% == BOM exit
+%SUBST_DRIVE%
+cd \
+@ECHO OFF
+IF NOT &quot;%HG_USERNAME%&quot; == &quot;&quot; GOTO USERNAME_OK
+echo &quot;You must enter a UserName and Password when using the BOM option&quot;
+exit 1
+:USERNAME_OK
+IF NOT &quot;%HG_PASSWORD%&quot; == &quot;&quot; GOTO HG_OK
+echo &quot;You must enter a UserName and Password when using the BOM option&quot;
+exit 1
+:HG_OK
+\tmp\utilities\clone_packages\clone_all_packages.pl -packagelist \build_info\logs\BOM\build-info.xml -username %HG_USERNAME% -password %HG_PASSWORD% -retries=7</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>IF %LEGACY_BLDMEFIRST% == true exit
+cd %SUBST_DRIVE%
+%SUBST_DRIVE%
+cd \ 
+mkdir %SUBST_DRIVE%\epoc32\include\variant\
+mkdir %SUBST_DRIVE%\epoc32\tools\variant\
+set VARIANT=tb91sf
+IF %PLATFORM% == symbian3 set VARIANT=tb92sf
+IF NOT %PLATFORM% == symbian2 copy %SUBST_DRIVE%\sf\os\deviceplatformrelease\symbianosbld\cedarutils\inc\Symbian_OS_%VARIANT%.hrh %SUBST_DRIVE%\sf\os\deviceplatformrelease\symbianosbld\cedarutils\Symbian_OS.hrh
+copy %SUBST_DRIVE%\sf\os\deviceplatformrelease\symbianosbld\cedarutils\*.hrh %SUBST_DRIVE%\epoc32\include\variant\
+copy %SUBST_DRIVE%\sf\os\deviceplatformrelease\symbianosbld\cedarutils\Symbian_OS_v%VARIANT%.cfg %SUBST_DRIVE%\epoc32\tools\variant\variant.cfg
+cd %SUBST_DRIVE%\sf\os\deviceplatformrelease\sf_config\config\inc\
+copy variant.cfg +,,
+exit 0</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>IF %LEGACY_BLDMEFIRST% == true exit
+cd %SUBST_DRIVE%
+%SUBST_DRIVE%
+cd\
+cmd /c sbs EXPORT --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\os\deviceplatformrelease\sf_config\config\western\group\bld.inf %TARGET%
+cmd /c sbs EXPORT --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\os\deviceplatformrelease\sf_config\config\group\bld.inf %TARGET%
+cmd /c sbs EXPORT --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\os\devicesrv\devicesrv_pub\platform_path_definitions_api\group\bld.inf %TARGET%
+cmd /c sbs EXPORT --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\os\devicesrv\devicesrv_pub\common_platform_security_definitions_api\group\bld.inf %TARGET%
+cmd /c sbs EXPORT --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\os\devicesrv\commonservices\commonengine\group\bld.inf %TARGET%
+cmd /c sbs EXPORT --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\mw\web\web_plat\browser_platform_api\group\bld.inf %TARGET%
+cmd /c sbs EXPORT --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\tools\homescreentools\dtdinstaller\group\bld.inf %TARGET%</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>IF %LEGACY_BLDMEFIRST% == true exit
+cd %SUBST_DRIVE%
+%SUBST_DRIVE%
+cd\
+xcopy /s %SUBST_DRIVE%\sf\tools\makefile_templates\*.* %SUBST_DRIVE%\epoc32\tools\makefile_templates\s60\
+exit 0</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>if %REBUILD_TOOLS% == true exit
+cd %SUBST_DRIVE%
+%SUBST_DRIVE%
+cd\
+set VARIANT=tb91sf
+IF %PLATFORM% == symbian3 set VARIANT=tb92sf
+cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_GT_%VARIANT%.xml -c tools_rel.whatlog -c tools2_rel.whatlog %TARGET% -i EXPORT -k -f exports.log</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>if %REBUILD_TOOLS% == false exit
+cd %SUBST_DRIVE%
+%SUBST_DRIVE%
+cd\
+set VARIANT=tb91sf
+IF %PLATFORM% == symbian3 set VARIANT=tb92sf
+cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_GT_%VARIANT%.xml  -c tools2_rel.whatlog.v%VARIANT% -i -j 32 -t 5 -k -f tools2_gt.log</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>if %REBUILD_TOOLS% == false exit
+cd %SUBST_DRIVE%
+%SUBST_DRIVE%
+cd\
+set VARIANT=tb91sf
+IF %PLATFORM% == symbian3 set VARIANT=tb92sf
+cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_GT_%VARIANT%.xml  -c tools_rel.whatlog.v%VARIANT% -i -j 32 -t 5 -k -f tools_gt.log</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>cd %SUBST_DRIVE%
+%SUBST_DRIVE%
+cd\
+set VARIANT=tb91sf
+IF %PLATFORM% == symbian3 set VARIANT=tb92sf
+cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_GT_%VARIANT%.xml  %TARGET% -i -j 32 -t 5 -k -f build.log</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>IF %SPLIT_BUILD% == false exit
+IF %REBUILD_TOOLS% == true exit
+cd %SUBST_DRIVE%
+%SUBST_DRIVE%
+cd\
+set S60VARIANT=5_1
+set VARIANT=tb91sf
+IF %PLATFORM% == symbian3 set VARIANT=tb92sf
+IF %PLATFORM% == symbian3 set S60VARIANT=5_2
+cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_S60_%S60VARIANT%_sf.xml -c tools_rel.whatlog -c tools2_rel.whatlog %TARGET% -i EXPORT -k -f exports.log</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>IF %SPLIT_BUILD% == false exit
+IF %REBUILD_TOOLS% == false exit
+cd %SUBST_DRIVE%
+%SUBST_DRIVE%
+cd\
+set S60VARIANT=5_1
+set VARIANT=tb91sf
+IF %PLATFORM% == symbian3 set VARIANT=tb92sf
+IF %PLATFORM% == symbian3 set S60VARIANT=5_2
+cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_S60_%S60VARIANT%_sf.xml  -c tools2_rel.whatlog.v%VARIANT% -i -j 32 -t 5 -k -f tools2_gt.log</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>IF %SPLIT_BUILD% == false exit
+IF %REBUILD_TOOLS% == false exit
+cd %SUBST_DRIVE%
+%SUBST_DRIVE%
+cd\
+set S60VARIANT=5_1
+set VARIANT=tb91sf
+IF %PLATFORM% == symbian3 set VARIANT=tb92sf
+IF %PLATFORM% == symbian3 set S60VARIANT=5_2
+cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_S60_%S60VARIANT%_sf.xml  -c tools_rel.whatlog.v%VARIANT% -i -j 32 -t 5 -k -f tools_gt.log</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>IF %SPLIT_BUILD% == false exit
+cd %SUBST_DRIVE%
+%SUBST_DRIVE%
+cd\
+set S60VARIANT=5_1
+set VARIANT=tb91sf
+IF %PLATFORM% == symbian3 set VARIANT=tb92sf
+IF %PLATFORM% == symbian3 set S60VARIANT=5_2
+cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_S60_%S60VARIANT%_sf.xml  %TARGET% -i -j 32 -t 5 -k -f build.log</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>cd %SUBST_DRIVE%
+%SUBST_DRIVE%
+cd\
+%HELIUM_HOME%\..\ConfigurationTool/cli_build.cmd -master_conf s60 -impl /epoc32/rom/config/confml_data/s60 -confml /epoc32/rom/config/confml_data/s60 -ignore_errors</command>
+    </hudson.tasks.BatchFile>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+  <customWorkspace>C:\</customWorkspace>
+</project>
