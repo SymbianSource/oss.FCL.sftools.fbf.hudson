@@ -12,6 +12,9 @@ http://developer.symbian.org/wiki/index.php/How_to_perform_a_platform_build_of_P
 </description>
   <keepDependencies>false</keepDependencies>
   <properties>
+    <hudson.security.AuthorizationMatrixProperty>
+      <useProjectSecurity>false</useProjectSecurity>
+    </hudson.security.AuthorizationMatrixProperty>
     <hudson.model.ParametersDefinitionProperty>
       <parameterDefinitions>
         <hudson.model.StringParameterDefinition>
@@ -35,12 +38,16 @@ http://developer.symbian.org/wiki/index.php/How_to_perform_a_platform_build_of_P
         </hudson.model.StringParameterDefinition>
         <hudson.model.BooleanParameterDefinition>
           <name>REBUILD_TOOLS</name>
-          <description>Tick this box if you want to rebuild &quot;tools&quot; as well (needs VC++ 6.0)</description>
+          <description>Tick this if you want to rebuild &quot;TOOLS&quot; target as well
+&lt;li&gt; Requires comercial VC++ 6.0 installed plus -
+&lt;li&gt; Requires binaries_epoc32_stlport.zip from &lt;a href=&quot;http://developer.symbian.org/main/tools_and_kits/&quot;&gt;release zipfiles&lt;/a&gt;</description>
           <defaultValue>false</defaultValue>
         </hudson.model.BooleanParameterDefinition>
         <hudson.model.BooleanParameterDefinition>
           <name>SPLIT_BUILD</name>
-          <description>Untick this box if the build is not GT/S60 split (only PDK2.0.e is not split at the moment)</description>
+          <description>Is the baseline run in two distinct steps (GT+S60). Tick this if -
+&lt;li&gt; Building older Symbian^2 PDKs. e.g. 2.0.d or earlier.
+&lt;li&gt; Building current Symbian^3 PDKs.</description>
           <defaultValue>true</defaultValue>
         </hudson.model.BooleanParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
@@ -57,7 +64,7 @@ http://developer.symbian.org/wiki/index.php/How_to_perform_a_platform_build_of_P
         </hudson.model.ChoiceParameterDefinition>
         <hudson.model.BooleanParameterDefinition>
           <name>LEGACY_BLDMEFIRST</name>
-          <description>Must be ticked for every baseline prior to PDK 2.0.e</description>
+          <description>Tick this if building older Symbian^2 PDKs. e.g. 2.0.d or earlier.</description>
           <defaultValue>false</defaultValue>
         </hudson.model.BooleanParameterDefinition>
         <hudson.model.StringParameterDefinition>
@@ -67,7 +74,8 @@ http://developer.symbian.org/wiki/index.php/How_to_perform_a_platform_build_of_P
         </hudson.model.StringParameterDefinition>
         <hudson.model.PasswordParameterDefinition>
           <name>HG_PASSWORD</name>
-          <description>Enter your Mercurial symbian developer web password  &lt;i&gt;(required for download of packages from BOM, not needed when using source zip packages)&lt;/i&gt;</description>
+          <description>Enter your Mercurial symbian developer web password  &lt;i&gt;(required for download of packages from BOM, not needed when using source zip packages)&lt;/i&gt;
+&lt;br&gt;&lt;b&gt;Note: Be aware that currently this password will appear in plain text in the build logs.&lt;/b&gt;</description>
           <defaultValue></defaultValue>
         </hudson.model.PasswordParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
@@ -176,13 +184,13 @@ exit 0</command>
 cd %SUBST_DRIVE%
 %SUBST_DRIVE%
 cd\
-cmd /c sbs EXPORT --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\os\deviceplatformrelease\sf_config\config\western\group\bld.inf %TARGET%
-cmd /c sbs EXPORT --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\os\deviceplatformrelease\sf_config\config\group\bld.inf %TARGET%
-cmd /c sbs EXPORT --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\os\devicesrv\devicesrv_pub\platform_path_definitions_api\group\bld.inf %TARGET%
-cmd /c sbs EXPORT --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\os\devicesrv\devicesrv_pub\common_platform_security_definitions_api\group\bld.inf %TARGET%
-cmd /c sbs EXPORT --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\os\devicesrv\commonservices\commonengine\group\bld.inf %TARGET%
-cmd /c sbs EXPORT --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\mw\web\web_plat\browser_platform_api\group\bld.inf %TARGET%
-cmd /c sbs EXPORT --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\tools\homescreentools\dtdinstaller\group\bld.inf %TARGET%</command>
+cmd /c sbs EXPORT --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\os\deviceplatformrelease\sf_config\config\western\group\bld.inf 
+cmd /c sbs EXPORT --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\os\deviceplatformrelease\sf_config\config\group\bld.inf 
+cmd /c sbs EXPORT --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\os\devicesrv\devicesrv_pub\platform_path_definitions_api\group\bld.inf
+cmd /c sbs EXPORT --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\os\devicesrv\devicesrv_pub\common_platform_security_definitions_api\group\bld.inf
+cmd /c sbs EXPORT --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\os\devicesrv\commonservices\commonengine\group\bld.inf
+cmd /c sbs EXPORT --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\mw\web\web_plat\browser_platform_api\group\bld.inf
+cmd /c sbs EXPORT --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\tools\homescreentools\dtdinstaller\group\bld.inf</command>
     </hudson.tasks.BatchFile>
     <hudson.tasks.BatchFile>
       <command>IF %LEGACY_BLDMEFIRST% == true exit
@@ -208,7 +216,7 @@ cd %SUBST_DRIVE%
 cd\
 set VARIANT=tb91sf
 IF %PLATFORM% == symbian3 set VARIANT=tb92sf
-cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_GT_%VARIANT%.xml  -c tools2_rel.whatlog.v%VARIANT% -i -j 32 -t 5 -k -f tools2_gt.log</command>
+cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_GT_%VARIANT%.xml  -c tools2_rel.whatlog.v%VARIANT% -i -j %NUMBER_OF_PROCESSORS% -t 5 -k -f tools2_gt.log</command>
     </hudson.tasks.BatchFile>
     <hudson.tasks.BatchFile>
       <command>if %REBUILD_TOOLS% == false exit
@@ -217,7 +225,7 @@ cd %SUBST_DRIVE%
 cd\
 set VARIANT=tb91sf
 IF %PLATFORM% == symbian3 set VARIANT=tb92sf
-cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_GT_%VARIANT%.xml  -c tools_rel.whatlog.v%VARIANT% -i -j 32 -t 5 -k -f tools_gt.log</command>
+cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_GT_%VARIANT%.xml  -c tools_rel.whatlog.v%VARIANT% -i -j %NUMBER_OF_PROCESSORS% -t 5 -k -f tools_gt.log</command>
     </hudson.tasks.BatchFile>
     <hudson.tasks.BatchFile>
       <command>cd %SUBST_DRIVE%
@@ -225,7 +233,7 @@ cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_GT_%
 cd\
 set VARIANT=tb91sf
 IF %PLATFORM% == symbian3 set VARIANT=tb92sf
-cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_GT_%VARIANT%.xml  %TARGET% -i -j 32 -t 5 -k -f build.log</command>
+cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_GT_%VARIANT%.xml  %TARGET% -i -j %NUMBER_OF_PROCESSORS% -t 5 -k -f build.log</command>
     </hudson.tasks.BatchFile>
     <hudson.tasks.BatchFile>
       <command>IF %SPLIT_BUILD% == false exit
@@ -249,7 +257,7 @@ set S60VARIANT=5_1
 set VARIANT=tb91sf
 IF %PLATFORM% == symbian3 set VARIANT=tb92sf
 IF %PLATFORM% == symbian3 set S60VARIANT=5_2
-cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_S60_%S60VARIANT%_sf.xml  -c tools2_rel.whatlog.v%VARIANT% -i -j 32 -t 5 -k -f tools2_gt.log</command>
+cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_S60_%S60VARIANT%_sf.xml  -c tools2_rel.whatlog.v%VARIANT% -i -j %NUMBER_OF_PROCESSORS% -t 5 -k -f tools2_gt.log</command>
     </hudson.tasks.BatchFile>
     <hudson.tasks.BatchFile>
       <command>IF %SPLIT_BUILD% == false exit
@@ -261,7 +269,7 @@ set S60VARIANT=5_1
 set VARIANT=tb91sf
 IF %PLATFORM% == symbian3 set VARIANT=tb92sf
 IF %PLATFORM% == symbian3 set S60VARIANT=5_2
-cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_S60_%S60VARIANT%_sf.xml  -c tools_rel.whatlog.v%VARIANT% -i -j 32 -t 5 -k -f tools_gt.log</command>
+cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_S60_%S60VARIANT%_sf.xml  -c tools_rel.whatlog.v%VARIANT% -i -j %NUMBER_OF_PROCESSORS% -t 5 -k -f tools_gt.log</command>
     </hudson.tasks.BatchFile>
     <hudson.tasks.BatchFile>
       <command>IF %SPLIT_BUILD% == false exit
@@ -272,7 +280,7 @@ set S60VARIANT=5_1
 set VARIANT=tb91sf
 IF %PLATFORM% == symbian3 set VARIANT=tb92sf
 IF %PLATFORM% == symbian3 set S60VARIANT=5_2
-cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_S60_%S60VARIANT%_sf.xml  %TARGET% -i -j 32 -t 5 -k -f build.log</command>
+cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_S60_%S60VARIANT%_sf.xml  %TARGET% -i -j %NUMBER_OF_PROCESSORS% -t 5 -k -f build.log</command>
     </hudson.tasks.BatchFile>
     <hudson.tasks.BatchFile>
       <command>cd %SUBST_DRIVE%

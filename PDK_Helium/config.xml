@@ -21,6 +21,9 @@ Source for the FBF can be downloaded from the following Mercurial Repositories -
 </description>
   <keepDependencies>false</keepDependencies>
   <properties>
+    <hudson.security.AuthorizationMatrixProperty>
+      <useProjectSecurity>false</useProjectSecurity>
+    </hudson.security.AuthorizationMatrixProperty>
     <hudson.model.ParametersDefinitionProperty>
       <parameterDefinitions>
         <hudson.model.StringParameterDefinition>
@@ -44,12 +47,16 @@ Source for the FBF can be downloaded from the following Mercurial Repositories -
         </hudson.model.StringParameterDefinition>
         <hudson.model.BooleanParameterDefinition>
           <name>REBUILD_TOOLS</name>
-          <description>Tick this box if you want to rebuild &quot;tools&quot; as well (needs VC++ 6.0)</description>
+          <description>Tick this if you want to rebuild &quot;TOOLS&quot; target as well
+&lt;li&gt; Requires comercial VC++ 6.0 installed plus -
+&lt;li&gt; Requires binaries_epoc32_stlport.zip from &lt;a href=&quot;http://developer.symbian.org/main/tools_and_kits/&quot;&gt;release zipfiles&lt;/a&gt;</description>
           <defaultValue>false</defaultValue>
         </hudson.model.BooleanParameterDefinition>
         <hudson.model.BooleanParameterDefinition>
           <name>SPLIT_BUILD</name>
-          <description>Untick this box if the build is not GT/S60 split (only PDK2.0.e is not split at the moment)</description>
+          <description>Is the baseline run in two distinct steps (GT+S60). Tick this if -
+&lt;li&gt; Building older Symbian^2 PDKs. e.g. 2.0.d or earlier.
+&lt;li&gt; Building current Symbian^3 PDKs.</description>
           <defaultValue>true</defaultValue>
         </hudson.model.BooleanParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
@@ -71,7 +78,8 @@ Source for the FBF can be downloaded from the following Mercurial Repositories -
         </hudson.model.StringParameterDefinition>
         <hudson.model.PasswordParameterDefinition>
           <name>HG_PASSWORD</name>
-          <description>Enter your Mercurial symbian developer web password  &lt;i&gt;(required for download of packages from BOM, not needed when using source zip packages)&lt;/i&gt;</description>
+          <description>Enter your Mercurial symbian developer web password  &lt;i&gt;(required for download of packages from BOM, not needed when using source zip packages)&lt;/i&gt;
+&lt;br&gt;&lt;b&gt;Note: Be aware that currently this password will appear in plain text in the build logs.&lt;/b&gt;</description>
           <defaultValue></defaultValue>
         </hudson.model.PasswordParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
@@ -98,14 +106,16 @@ Source for the FBF can be downloaded from the following Mercurial Repositories -
           <description>The tagged version of the FBF (Helium) to use to build the Platform.
 &lt;li&gt;tip - is the latest revision from the web
 &lt;br&gt;&lt;br&gt;
-&lt;i&gt;Its recommended to use the revision that matches the build_BOM.zip downloaded&lt;/i&gt;
+&lt;i&gt;Unless you want the latest changes, its recommended to use the revision that matches the build_BOM.zip downloaded&lt;/i&gt;
 </description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
               <string>tip</string>
+              <string>PDK_2.0.1</string>
+              <string>PDK_2.0.0</string>
+              <string>PDK_3.0.c</string>
               <string>PDK_3.0.b</string>
               <string>PDK_3.0.a</string>
-              <string>PDK_2.0.0</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
