@@ -12,9 +12,6 @@ http://developer.symbian.org/wiki/index.php/How_to_perform_a_platform_build_of_P
 </description>
   <keepDependencies>false</keepDependencies>
   <properties>
-    <hudson.security.AuthorizationMatrixProperty>
-      <useProjectSecurity>false</useProjectSecurity>
-    </hudson.security.AuthorizationMatrixProperty>
     <hudson.model.ParametersDefinitionProperty>
       <parameterDefinitions>
         <hudson.model.StringParameterDefinition>
@@ -75,7 +72,7 @@ http://developer.symbian.org/wiki/index.php/How_to_perform_a_platform_build_of_P
         <hudson.model.PasswordParameterDefinition>
           <name>HG_PASSWORD</name>
           <description>Enter your Mercurial symbian developer web password  &lt;i&gt;(required for download of packages from BOM, not needed when using source zip packages)&lt;/i&gt;
-&lt;br&gt;&lt;b&gt;Note: Be aware that currently this password will appear in plain text in the build logs.&lt;/b&gt;</description>
+&lt;br&gt;</description>
           <defaultValue></defaultValue>
         </hudson.model.PasswordParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
@@ -171,6 +168,7 @@ cd \
 mkdir %SUBST_DRIVE%\epoc32\include\variant\
 mkdir %SUBST_DRIVE%\epoc32\tools\variant\
 set VARIANT=tb91sf
+set HG_PASSWORD=
 IF %PLATFORM% == symbian3 set VARIANT=tb92sf
 IF NOT %PLATFORM% == symbian2 copy %SUBST_DRIVE%\sf\os\deviceplatformrelease\symbianosbld\cedarutils\inc\Symbian_OS_%VARIANT%.hrh %SUBST_DRIVE%\sf\os\deviceplatformrelease\symbianosbld\cedarutils\Symbian_OS.hrh
 copy %SUBST_DRIVE%\sf\os\deviceplatformrelease\symbianosbld\cedarutils\*.hrh %SUBST_DRIVE%\epoc32\include\variant\
@@ -183,6 +181,7 @@ exit 0</command>
       <command>IF %LEGACY_BLDMEFIRST% == true exit
 cd %SUBST_DRIVE%
 %SUBST_DRIVE%
+set HG_PASSWORD=
 cd\
 cmd /c sbs EXPORT --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\os\deviceplatformrelease\sf_config\config\western\group\bld.inf 
 cmd /c sbs EXPORT --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\os\deviceplatformrelease\sf_config\config\group\bld.inf 
@@ -196,6 +195,7 @@ cmd /c sbs EXPORT --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\tools\
       <command>IF %LEGACY_BLDMEFIRST% == true exit
 cd %SUBST_DRIVE%
 %SUBST_DRIVE%
+set HG_PASSWORD=
 cd\
 xcopy /s %SUBST_DRIVE%\sf\tools\makefile_templates\*.* %SUBST_DRIVE%\epoc32\tools\makefile_templates\s60\
 exit 0</command>
@@ -204,6 +204,7 @@ exit 0</command>
       <command>if %REBUILD_TOOLS% == true exit
 cd %SUBST_DRIVE%
 %SUBST_DRIVE%
+set HG_PASSWORD=
 cd\
 set VARIANT=tb91sf
 IF %PLATFORM% == symbian3 set VARIANT=tb92sf
@@ -213,6 +214,7 @@ cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_GT_%
       <command>if %REBUILD_TOOLS% == false exit
 cd %SUBST_DRIVE%
 %SUBST_DRIVE%
+set HG_PASSWORD=
 cd\
 set VARIANT=tb91sf
 IF %PLATFORM% == symbian3 set VARIANT=tb92sf
@@ -222,6 +224,7 @@ cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_GT_%
       <command>if %REBUILD_TOOLS% == false exit
 cd %SUBST_DRIVE%
 %SUBST_DRIVE%
+set HG_PASSWORD=
 cd\
 set VARIANT=tb91sf
 IF %PLATFORM% == symbian3 set VARIANT=tb92sf
@@ -230,6 +233,7 @@ cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_GT_%
     <hudson.tasks.BatchFile>
       <command>cd %SUBST_DRIVE%
 %SUBST_DRIVE%
+set HG_PASSWORD=
 cd\
 set VARIANT=tb91sf
 IF %PLATFORM% == symbian3 set VARIANT=tb92sf
@@ -240,6 +244,7 @@ cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_GT_%
 IF %REBUILD_TOOLS% == true exit
 cd %SUBST_DRIVE%
 %SUBST_DRIVE%
+set HG_PASSWORD=
 cd\
 set S60VARIANT=5_1
 set VARIANT=tb91sf
@@ -252,6 +257,7 @@ cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_S60_
 IF %REBUILD_TOOLS% == false exit
 cd %SUBST_DRIVE%
 %SUBST_DRIVE%
+set HG_PASSWORD=
 cd\
 set S60VARIANT=5_1
 set VARIANT=tb91sf
@@ -264,6 +270,7 @@ cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_S60_
 IF %REBUILD_TOOLS% == false exit
 cd %SUBST_DRIVE%
 %SUBST_DRIVE%
+set HG_PASSWORD=
 cd\
 set S60VARIANT=5_1
 set VARIANT=tb91sf
@@ -275,6 +282,7 @@ cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_S60_
       <command>IF %SPLIT_BUILD% == false exit
 cd %SUBST_DRIVE%
 %SUBST_DRIVE%
+set HG_PASSWORD=
 cd\
 set S60VARIANT=5_1
 set VARIANT=tb91sf
@@ -286,7 +294,9 @@ cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_S60_
       <command>cd %SUBST_DRIVE%
 %SUBST_DRIVE%
 cd\
-%HELIUM_HOME%\..\ConfigurationTool/cli_build.cmd -master_conf s60 -impl /epoc32/rom/config/confml_data/s60 -confml /epoc32/rom/config/confml_data/s60 -ignore_errors</command>
+IF %PLATFORM% == symbian2 set CENREP_DIR=/epoc32/rom/config/confml_data/s60
+IF %PLATFORM% == symbian3 set CENREP_DIR=/epoc32/rom/config/assets
+%HELIUM_HOME%\..\ConfigurationTool/cli_build.cmd -master_conf s60 -impl %CENREP_DIR% -confml %CENREP_DIR% -ignore_errors</command>
     </hudson.tasks.BatchFile>
   </builders>
   <publishers/>
