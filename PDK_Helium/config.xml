@@ -108,8 +108,10 @@ Source for the FBF can be downloaded from the following Mercurial Repositories -
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
               <string>tip</string>
+              <string>PDK_2.0.2</string>
               <string>PDK_2.0.1</string>
               <string>PDK_2.0.0</string>
+              <string>PDK_3.0.d</string>
               <string>PDK_3.0.c</string>
               <string>PDK_3.0.b</string>
               <string>PDK_3.0.a</string>
@@ -139,6 +141,7 @@ hlm -f bootstrap.xml -Dsf.project.repo=http://developer.symbian.org/oss/FCL/inte
     <hudson.tasks.BatchFile>
       <command>%BUILD_DRIVE%
 cd\
+set HG_PASSWORD=
 set PROJECT=single
 set TOOLS_BASELINE_ENABLE=true
 set TOOLS_CONFIG=tools_rel.whatlog,tools2_rel.whatlog
@@ -193,6 +196,7 @@ cd\
     <hudson.tasks.BatchFile>
       <command>%BUILD_DRIVE%
 cd\
+set HG_PASSWORD=
 set PROJECT=single
 set TOOLS_BASELINE_ENABLE=true
 set TOOLS_CONFIG=tools_rel.whatlog,tools2_rel.whatlog

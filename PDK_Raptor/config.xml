@@ -87,7 +87,7 @@ http://developer.symbian.org/wiki/index.php/How_to_perform_a_platform_build_of_P
         </hudson.model.ChoiceParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>TARGET</name>
-          <description>What target to build. Building armv5 targets requires RVCT arm compiler installed.</description>
+          <description>What target to build. Building armv5 targets requires RVCT arm compiler installed. If you need a different target, then select &lt;i&gt;configure&lt;/i&gt; on the left, and add it to the choice option.</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
               <string>-c winscw_udeb</string>
@@ -120,20 +120,21 @@ cd %SUBST_DRIVE%\tmp
 hg clone http://developer.symbian.org/oss/MCL/utilities</command>
     </hudson.tasks.BatchFile>
     <hudson.tasks.BatchFile>
-      <command>%SUBST_DRIVE%
+      <command>@echo off
+%SUBST_DRIVE%
 cd \
-copy %RELEASE_ZIP_LOCATION%\build_BOM.zip %SUBST_DRIVE%\tmp
-copy %RELEASE_ZIP_LOCATION%\*_rndonly*.zip %SUBST_DRIVE%\tmp
-copy %RELEASE_ZIP_LOCATION%\bin_redist*.zip %SUBST_DRIVE%\tmp
-copy %RELEASE_ZIP_LOCATION%\binaries_epoc_additional.zip %SUBST_DRIVE%\tmp
-copy %RELEASE_ZIP_LOCATION%\binaries_bldmefirst.zip %SUBST_DRIVE%\tmp
-%SUBST_DRIVE%\tmp
+xcopy %RELEASE_ZIP_LOCATION%\build_BOM.zip %SUBST_DRIVE%\tmp /q
+xcopy %RELEASE_ZIP_LOCATION%\*_rndonly*.zip %SUBST_DRIVE%\tmp /q
+xcopy %RELEASE_ZIP_LOCATION%\bin_redist*.zip %SUBST_DRIVE%\tmp /q
+xcopy %RELEASE_ZIP_LOCATION%\binaries_epoc_additional.zip %SUBST_DRIVE%\tmp /q
+xcopy %RELEASE_ZIP_LOCATION%\binaries_bldmefirst.zip %SUBST_DRIVE%\tmp /q
+
 IF %SRC_LOCATION% == BOM goto TOOLSZIP
-copy %RELEASE_ZIP_LOCATION%\src_*.zip %SUBST_DRIVE%\tmp
+xcopy %RELEASE_ZIP_LOCATION%\src_*.zip %SUBST_DRIVE%\tmp /q
 :TOOLSZIP
 IF %REBUILD_TOOLS% == true exit 0
-copy %RELEASE_ZIP_LOCATION%\binaries_epoc32_stlport.zip %SUBST_DRIVE%\tmp
-copy %RELEASE_ZIP_LOCATION%\tools_*.zip %SUBST_DRIVE%\tmp
+xcopy %RELEASE_ZIP_LOCATION%\binaries_epoc32_stlport.zip %SUBST_DRIVE%\tmp /q
+xcopy %RELEASE_ZIP_LOCATION%\tools_*.zip %SUBST_DRIVE%\tmp /q
 exit 0</command>
     </hudson.tasks.BatchFile>
     <hudson.tasks.BatchFile>
@@ -208,7 +209,7 @@ set HG_PASSWORD=
 cd\
 set VARIANT=tb91sf
 IF %PLATFORM% == symbian3 set VARIANT=tb92sf
-cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_GT_%VARIANT%.xml -c tools_rel.whatlog -c tools2_rel.whatlog %TARGET% -i EXPORT -k -f exports.log</command>
+cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_GT_%VARIANT%.xml -c tools_rel.whatlog -c tools2_rel.whatlog %TARGET% EXPORT -k -f exports.log</command>
     </hudson.tasks.BatchFile>
     <hudson.tasks.BatchFile>
       <command>if %REBUILD_TOOLS% == false exit
@@ -218,7 +219,7 @@ set HG_PASSWORD=
 cd\
 set VARIANT=tb91sf
 IF %PLATFORM% == symbian3 set VARIANT=tb92sf
-cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_GT_%VARIANT%.xml  -c tools2_rel.whatlog.v%VARIANT% -i -j %NUMBER_OF_PROCESSORS% -t 5 -k -f tools2_gt.log</command>
+cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_GT_%VARIANT%.xml  -c tools2_rel.whatlog.v%VARIANT% -j %NUMBER_OF_PROCESSORS% -t 5 -k -f tools2_gt.log</command>
     </hudson.tasks.BatchFile>
     <hudson.tasks.BatchFile>
       <command>if %REBUILD_TOOLS% == false exit
@@ -228,7 +229,7 @@ set HG_PASSWORD=
 cd\
 set VARIANT=tb91sf
 IF %PLATFORM% == symbian3 set VARIANT=tb92sf
-cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_GT_%VARIANT%.xml  -c tools_rel.whatlog.v%VARIANT% -i -j %NUMBER_OF_PROCESSORS% -t 5 -k -f tools_gt.log</command>
+cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_GT_%VARIANT%.xml  -c tools_rel.whatlog.v%VARIANT% -j %NUMBER_OF_PROCESSORS% -t 5 -k -f tools_gt.log</command>
     </hudson.tasks.BatchFile>
     <hudson.tasks.BatchFile>
       <command>cd %SUBST_DRIVE%
@@ -237,7 +238,7 @@ set HG_PASSWORD=
 cd\
 set VARIANT=tb91sf
 IF %PLATFORM% == symbian3 set VARIANT=tb92sf
-cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_GT_%VARIANT%.xml  %TARGET% -i -j %NUMBER_OF_PROCESSORS% -t 5 -k -f build.log</command>
+cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_GT_%VARIANT%.xml  %TARGET% -j %NUMBER_OF_PROCESSORS% -t 5 -k -f build.log</command>
     </hudson.tasks.BatchFile>
     <hudson.tasks.BatchFile>
       <command>IF %SPLIT_BUILD% == false exit
@@ -250,7 +251,7 @@ set S60VARIANT=5_1
 set VARIANT=tb91sf
 IF %PLATFORM% == symbian3 set VARIANT=tb92sf
 IF %PLATFORM% == symbian3 set S60VARIANT=5_2
-cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_S60_%S60VARIANT%_sf.xml -c tools_rel.whatlog -c tools2_rel.whatlog %TARGET% -i EXPORT -k -f exports.log</command>
+cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_S60_%S60VARIANT%_sf.xml -c tools_rel.whatlog -c tools2_rel.whatlog %TARGET% EXPORT -k -f exports_s60.log</command>
     </hudson.tasks.BatchFile>
     <hudson.tasks.BatchFile>
       <command>IF %SPLIT_BUILD% == false exit
@@ -263,7 +264,7 @@ set S60VARIANT=5_1
 set VARIANT=tb91sf
 IF %PLATFORM% == symbian3 set VARIANT=tb92sf
 IF %PLATFORM% == symbian3 set S60VARIANT=5_2
-cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_S60_%S60VARIANT%_sf.xml  -c tools2_rel.whatlog.v%VARIANT% -i -j %NUMBER_OF_PROCESSORS% -t 5 -k -f tools2_gt.log</command>
+cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_S60_%S60VARIANT%_sf.xml  -c tools2_rel.whatlog.v%VARIANT% -j %NUMBER_OF_PROCESSORS% -t 5 -k -f tools2_s60.log</command>
     </hudson.tasks.BatchFile>
     <hudson.tasks.BatchFile>
       <command>IF %SPLIT_BUILD% == false exit
@@ -276,7 +277,7 @@ set S60VARIANT=5_1
 set VARIANT=tb91sf
 IF %PLATFORM% == symbian3 set VARIANT=tb92sf
 IF %PLATFORM% == symbian3 set S60VARIANT=5_2
-cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_S60_%S60VARIANT%_sf.xml  -c tools_rel.whatlog.v%VARIANT% -i -j %NUMBER_OF_PROCESSORS% -t 5 -k -f tools_gt.log</command>
+cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_S60_%S60VARIANT%_sf.xml  -c tools_rel.whatlog.v%VARIANT% -j %NUMBER_OF_PROCESSORS% -t 5 -k -f tools_s60.log</command>
     </hudson.tasks.BatchFile>
     <hudson.tasks.BatchFile>
       <command>IF %SPLIT_BUILD% == false exit
@@ -288,7 +289,7 @@ set S60VARIANT=5_1
 set VARIANT=tb91sf
 IF %PLATFORM% == symbian3 set VARIANT=tb92sf
 IF %PLATFORM% == symbian3 set S60VARIANT=5_2
-cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_S60_%S60VARIANT%_sf.xml  %TARGET% -i -j %NUMBER_OF_PROCESSORS% -t 5 -k -f build.log</command>
+cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_S60_%S60VARIANT%_sf.xml  %TARGET% -j %NUMBER_OF_PROCESSORS% -t 5 -k -f build_s60.log</command>
     </hudson.tasks.BatchFile>
     <hudson.tasks.BatchFile>
       <command>cd %SUBST_DRIVE%
