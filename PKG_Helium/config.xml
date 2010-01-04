@@ -1,0 +1,213 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>&lt;h3&gt;Description&lt;/h3&gt;&#xd;
+&lt;li&gt;The project will (re)build a specified package against the Symbian^2 or Symbian^3 Platform from source.&#xd;
+&lt;li&gt;The project will unzip any available source plus take source of the specified package from the web at the correct revision.&#xd;
+&lt;br&gt;&lt;br&gt;&#xd;
+The Foundation Build Framework (FBF) is an Apache ANT-like configuration that can be used with the Helium tool, delivered in the &lt;a href=&quot;https://developer.symbian.org/main/tools_and_kits/downloads/view.php?id=4&quot;/&gt;PDT&lt;/a&gt;.&#xd;
+&#xd;
+&lt;h3&gt;Prerequisites&lt;/h3&gt;&#xd;
+&lt;li&gt;Installation of mandatory &lt;a href=&quot;http://developer.symbian.org/wiki/index.php/How_to_Build_a_Package#Installing_Build_Tools&quot;/&gt;build tools&lt;/a&gt;&#xd;
+&lt;li&gt;Download of required (and recommended) &lt;a href=&quot;&#xd;
+http://developer.symbian.org/wiki/index.php/How_to_Build_a_Package#Getting_the_Baseline&quot;/&gt;zips &lt;/a&gt; from the &lt;a href=&quot;http://developer.symbian.org/main/tools_and_kits/&quot;&gt;kits page.&lt;/a&gt;&#xd;
+&#xd;
+&lt;h3&gt;Additional Information&lt;/h3&gt;&#xd;
+Source for the FBF can be downloaded from the following Mercurial Repositories -&#xd;
+&lt;br&gt;&#xd;
+&lt;li&gt;FBF Configuration - &lt;a href=&quot;https://developer.symbian.org/oss/FCL/interim/fbf/configs/default/&quot;/&gt;https://developer.symbian.org/oss/FCL/interim/fbf/configs/default/&lt;/a&gt;&#xd;
+&lt;li&gt;FBF Package Projects - &lt;a href=&quot;https://developer.symbian.org/oss/FCL/interim/fbf/projects/packages&quot;/&gt;https://developer.symbian.org/oss/FCL/interim/fbf/projects/packages&lt;/a&gt;&#xd;
+&lt;li&gt;FBF Bootstrap - &lt;a href=&quot;https://developer.symbian.org/oss/FCL/interim/fbf/bootstrap&quot;/&gt;https://developer.symbian.org/oss/FCL/interim/fbf/bootstrap&lt;/a&gt;&#xd;
+</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>BUILD_DRIVE</name>
+          <description>Physical Build Drive</description>
+          <defaultValue>C:</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>SUBST_DRIVE</name>
+          <description>Subst&apos;d EPOC drive</description>
+          <defaultValue>M:</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>RELEASE_ZIP_LOCATION</name>
+          <description>Location of &lt;a href=&quot;http://developer.symbian.org/main/tools_and_kits/&quot;&gt;release zipfiles&lt;/a&gt; 
+&lt;li&gt;build_BOM.zip
+&lt;li&gt;tools_epoc.zip
+
+e.g. C:\downloads</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>HG_USERNAME</name>
+          <description>Enter your symbian developer web username &lt;i&gt;(required for download of packages from BOM, not needed when using source zip packages)&lt;/i&gt;</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.PasswordParameterDefinition>
+          <name>HG_PASSWORD</name>
+          <description>Enter your Mercurial symbian developer web password  &lt;i&gt;(required for download of packages from BOM, not needed when using source zip packages)&lt;/i&gt;
+&lt;br&gt;</description>
+          <defaultValue></defaultValue>
+        </hudson.model.PasswordParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>FBF_REV</name>
+          <description>The tagged version of the FBF (Helium) to use to build the Platform.
+&lt;li&gt;tip - is the latest revision from the web
+&lt;br&gt;&lt;br&gt;
+&lt;i&gt;Unless you want the latest changes, its recommended to use the revision that matches the build_BOM.zip downloaded&lt;/i&gt;
+</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>tip</string>
+              <string>PDK_2.0.2</string>
+              <string>PDK_2.0.1</string>
+              <string>PDK_2.0.0</string>
+              <string>PDK_3.0.d</string>
+              <string>PDK_3.0.c</string>
+              <string>PDK_3.0.b</string>
+              <string>PDK_3.0.a</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>CODELINE</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>Symbian2</string>
+              <string>Symbian3</string>
+              <string>CompilerCompatability</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>PACKAGE</name>
+          <description>Layer and name of package e.g. os/kernelhwsrv</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>TARGET</name>
+          <description>Comma separated list of target(s) to build. Building armv5 targets requires RVCT arm compiler installed. e.g.
+&lt;br&gt;&lt;br&gt;
+&lt;li&gt;tools.whatlog,tools2.whatlog,winscw_udeb.whatlog
+&lt;li&gt;winscw_udeb.whatlog, armv5_urel.whatlog
+&lt;li&gt;armv5.whatlog,winscw.whatlog</description>
+          <defaultValue>winscw_udeb.whatlog</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>COMPILE_ONLY</name>
+          <description>Compile just the package. &lt;b&gt;Tick if -&lt;/b&gt;
+
+&lt;li&gt; the build environment on the drive specified has been prepared already.</description>
+          <defaultValue>false</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers class="vector"/>
+  <concurrentBuild>true</concurrentBuild>
+  <builders>
+    <hudson.tasks.BatchFile>
+      <command>IF &quot;%COMPILE_ONLY%&quot;==&quot;true&quot; exit 0
+%BUILD_DRIVE%
+cd\
+mkdir %TMP%\sf-bootstrap.%BUILD_NUMBER%
+cd /d %TMP%\sf-bootstrap.%BUILD_NUMBER%
+hg clone http://developer.symbian.org/oss/FCL/interim/fbf/bootstrap
+cd bootstrap
+hlm -f bootstrap.xml -Dsf.project.repo=https://developer.symbian.org/oss/FCL/interim/fbf/projects/packages/ -Dsf.config.repo=http://developer.symbian.org/oss/FCL/interim/fbf/configs/default -Dsf.target.dir=%TMP%\maintools_%JOB_NAME%.%BUILD_NUMBER% -Dsf.config.rev=%FBF_REV% -Dsf.project.rev=%FBF_REV%</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>IF &quot;%COMPILE_ONLY%&quot;==&quot;true&quot; exit 0
+%BUILD_DRIVE%
+set HG_PASSWORD=
+cd\
+cd /d %TMP%\maintools_%JOB_NAME%.%BUILD_NUMBER%\sf-config
+hlm sf-prep -Dbuild.drive=%SUBST_DRIVE% -Dsf.spec.job.number=%JOB_NAME%.%BUILD_NUMBER% -Dsf.spec.sbs.config=&quot;%TARGET%&quot; -Dsf.spec.baseline.location=%RELEASE_ZIP_LOCATION% -Dsf.spec.job.rootdir=%BUILD_DRIVE% -Dsf.suppress.buildenv.check=true -Dsf.suppress.drive.space.check=true -Dsf.project.type=package -Dsf.subproject.path=%CODELINE%/%PACKAGE% -Dsf.spec.publish.enable=false</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>exit 0
+IF &quot;%COMPILE_ONLY%&quot;==&quot;true&quot; exit 0
+%BUILD_DRIVE%
+set HG_PASSWORD=
+cd\
+cd /d %TMP%\maintools_%JOB_NAME%.%BUILD_NUMBER%\sf-config
+hlm sf-getenvs -Dbuild.drive=%SUBST_DRIVE% -Dsf.spec.job.number=%JOB_NAME%.%BUILD_NUMBER% -Dsf.spec.sbs.config=&quot;%TARGET%&quot; -Dsf.spec.baseline.location=%RELEASE_ZIP_LOCATION% -Dsf.spec.job.rootdir=%BUILD_DRIVE% -Dsf.suppress.buildenv.check=true -Dsf.suppress.drive.space.check=true -Dsf.project.type=package -Dsf.subproject.path=%CODELINE%/%PACKAGE% -Dsf.spec.publish.enable=false -Dsf.spec.baseline.getenv_options=&quot;-I rnd -I info -k&quot;
+exit 0</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>rem exit 0
+IF &quot;%COMPILE_ONLY%&quot;==&quot;true&quot; exit 0
+%SUBST_DRIVE%
+cd\
+mkdir tmp
+copy %RELEASE_ZIP_LOCATION%\build_BOM.zip %SUBST_DRIVE%\tmp
+copy %RELEASE_ZIP_LOCATION%\*bin*.zip %SUBST_DRIVE%\tmp
+copy %RELEASE_ZIP_LOCATION%\src_*.zip %SUBST_DRIVE%\tmp
+copy %RELEASE_ZIP_LOCATION%\tools_*.zip %SUBST_DRIVE%\tmp
+%SUBST_DRIVE%
+cd %SUBST_DRIVE%\tmp
+dir
+@ECHO OFF
+7z x *.zip -o.. -y
+cd..
+7z x *.zip -y
+del *.zip
+exit 0</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>IF &quot;%COMPILE_ONLY%&quot;==&quot;true&quot; exit 0
+%SUBST_DRIVE%
+cd \
+@ECHO OFF
+IF NOT &quot;%HG_USERNAME%&quot; == &quot;&quot; GOTO USERNAME_OK
+echo &quot;You must enter a UserName and Password &quot;
+exit 1
+:USERNAME_OK
+IF NOT &quot;%HG_PASSWORD%&quot; == &quot;&quot; GOTO HG_OK
+echo &quot;You must enter a UserName and Password&quot;
+exit 1
+:HG_OK
+if exist sf\%PACKAGE% (
+    ECHO Moving zip source of %PACKAGE% to %PACKAGE%.PDK
+    move sf\%PACKAGE% sf\%PACKAGE%.PDK
+)
+cd \tmp
+hg clone http://developer.symbian.org/oss/MCL/utilities
+cd\
+\tmp\utilities\clone_packages\clone_all_packages.pl -packagelist \build_info\logs\BOM\build-info.xml -username %HG_USERNAME% -password %HG_PASSWORD% -retries=7 -filter %PACKAGE%</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>IF &quot;%COMPILE_ONLY%&quot;==&quot;true&quot; exit 0
+%BUILD_DRIVE%
+set HG_PASSWORD=
+cd /d %TMP%\maintools_%JOB_NAME%.%BUILD_NUMBER%\sf-config
+hlm sf-build-noprep -Dbuild.drive=%SUBST_DRIVE% -Dsf.spec.job.number=%JOB_NAME%.%BUILD_NUMBER% -Dsf.spec.sbs.config=&quot;%TARGET%&quot; -Dsf.spec.baseline.location=%RELEASE_ZIP_LOCATION% -Dsf.spec.job.rootdir=%BUILD_DRIVE% -Dsf.suppress.buildenv.check=true -Dsf.suppress.drive.space.check=true -Dsf.project.type=package -Dsf.subproject.path=%CODELINE%/%PACKAGE% -Dsf.spec.publish.enable=false </command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>IF &quot;%COMPILE_ONLY%&quot;==&quot;true&quot; exit 0
+ECHO Copying FBF tools to build drive, %SUBST_DRIVE%
+@ECHO OFF
+cd /d %TMP%
+xcopy /s /q maintools_%JOB_NAME%.%BUILD_NUMBER% %SUBST_DRIVE%\maintools\</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>IF NOT &quot;%COMPILE_ONLY%&quot;==&quot;true&quot; exit 0
+%SUBST_DRIVE%
+set HG_PASSWORD=
+cd maintools\sf-config
+hlm sf-build-noprep -Dbuild.drive=%SUBST_DRIVE% -Dsf.spec.job.number=%JOB_NAME%.%BUILD_NUMBER% -Dsf.spec.sbs.config=&quot;%TARGET%&quot; -Dsf.spec.job.rootdir=%BUILD_DRIVE% -Dsf.project.type=package -Dsf.subproject.path=%CODELINE%/%PACKAGE% -Dsf.spec.publish.enable=false </command>
+    </hudson.tasks.BatchFile>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+  <customWorkspace>D:\</customWorkspace>
+</project>
