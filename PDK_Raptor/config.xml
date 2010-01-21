@@ -184,13 +184,13 @@ cd %SUBST_DRIVE%
 %SUBST_DRIVE%
 set HG_PASSWORD=
 cd\
-cmd /c sbs EXPORT --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\os\deviceplatformrelease\sf_config\config\western\group\bld.inf 
-cmd /c sbs EXPORT --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\os\deviceplatformrelease\sf_config\config\group\bld.inf 
-cmd /c sbs EXPORT --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\os\devicesrv\devicesrv_pub\platform_path_definitions_api\group\bld.inf
-cmd /c sbs EXPORT --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\os\devicesrv\devicesrv_pub\common_platform_security_definitions_api\group\bld.inf
-cmd /c sbs EXPORT --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\os\devicesrv\commonservices\commonengine\group\bld.inf
-cmd /c sbs EXPORT --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\mw\web\web_plat\browser_platform_api\group\bld.inf
-cmd /c sbs EXPORT --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\tools\homescreentools\dtdinstaller\group\bld.inf</command>
+cmd /c sbs EXPORT %TARGET% --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\os\deviceplatformrelease\sf_config\config\western\group\bld.inf 
+cmd /c sbs EXPORT %TARGET% --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\os\deviceplatformrelease\sf_config\config\group\bld.inf 
+cmd /c sbs EXPORT %TARGET% --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\os\devicesrv\devicesrv_pub\platform_path_definitions_api\group\bld.inf
+cmd /c sbs EXPORT %TARGET% --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\os\devicesrv\devicesrv_pub\common_platform_security_definitions_api\group\bld.inf
+cmd /c sbs EXPORT %TARGET% --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\os\devicesrv\commonservices\commonengine\group\bld.inf
+cmd /c sbs EXPORT %TARGET% --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\mw\web\web_plat\browser_platform_api\group\bld.inf
+cmd /c sbs EXPORT %TARGET% --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\tools\homescreentools\dtdinstaller\group\bld.inf</command>
     </hudson.tasks.BatchFile>
     <hudson.tasks.BatchFile>
       <command>IF %LEGACY_BLDMEFIRST% == true exit
