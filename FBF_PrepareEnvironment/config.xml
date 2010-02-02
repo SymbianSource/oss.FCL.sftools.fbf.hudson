@@ -1,0 +1,126 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>&lt;img align=&quot;center&quot; src=&quot;http://developer.symbian.org/img/skin1209/header_bg.gif&quot; /&gt;&#xd;
+&lt;h3&gt;Description&lt;/h3&gt;&#xd;
+&lt;p&gt;&#xd;
+This project prepares a build environment that can be used by the &lt;b&gt;FBF_BuildPackage&lt;/b&gt; job for building packages (using the &lt;a href=&quot;http://developer.symbian.org/wiki/index.php/Build_machinery#Helium_.2F_Foundation_Build_Framework&quot;/&gt;Foundation Build Framework (Helium)&lt;/a&gt;). It has been tested against the Symbian^2 and Symbian^3 PDK.&#xd;
+&lt;/p&gt; &#xd;
+&#xd;
+&lt;h3&gt;Prerequisites&lt;/h3&gt;&#xd;
+&lt;ol&gt;&#xd;
+&lt;li&gt;Install the &lt;a href=&quot;http://developer.symbian.org/wiki/index.php/Product_Development_Toolkit_Quick_Start&quot;/&gt;PDT&lt;/a&gt; (build tools) and &lt;a href=&quot;http://downloads.sourceforge.net/sevenzip/7z465.exe&quot;/&gt;7-zip&lt;/a&gt;&lt;/li&gt;&#xd;
+&lt;li&gt;Download of &lt;a href=&quot;&#xd;
+http://developer.symbian.org/wiki/index.php/How_to_Build_a_Package#Getting_the_Baseline&quot;/&gt;required (and recommended) zips&lt;/a&gt; from the &#xd;
+&lt;a href=&quot;http://developer.symbian.org/main/tools_and_kits/downloads/view.php?id=1/&quot;&gt;Symbian^2&lt;/a&gt;, &lt;a href=&quot;http://developer.symbian.org/main/tools_and_kits/downloads/view.php?id=5/&quot;&gt;Symbian^3&lt;/a&gt; (or &lt;a href=&quot;http://developer.symbian.org/main/tools_and_kits/&quot;&gt;other&lt;/a&gt;) kits page.  &lt;/li&gt;&#xd;
+&lt;li&gt;If the package you are building is dependent on other source zips, then the corresponding source zip should also be downloaded. For example, if you want to build &lt;i&gt;os\emulatorbsp&lt;/i&gt; then you&apos;ll also need to have the &lt;i&gt;os\kernel&lt;/i&gt; source too, so you&apos;d copy &lt;i&gt;src_oss_os.zip&lt;/i&gt; into RELEASE_ZIP_LOCATION&lt;/li&gt;&#xd;
+&lt;/ol&gt;&#xd;
+&#xd;
+&#xd;
+&lt;h3&gt;Operation&lt;/h3&gt;&#xd;
+&lt;p&gt;The project:&lt;/p&gt;&#xd;
+&lt;ol&gt;&#xd;
+&lt;li&gt; Creates a unique folder in the specified physical BUILD_DRIVE, then subst it to the SUBST_DRIVE.&lt;/li&gt;&#xd;
+&lt;li&gt;Unpack zips provided in RELEASE_ZIP_LOCATION (including the binaries, tools, bill of materials (BOM), additional binaries (stuff that cant be re-built) and any available source into the root of SUBST_DRIVE drive. &lt;/li&gt;&#xd;
+&lt;li&gt;Copies the Foundation Build Framework (FBF) &apos;maintools&apos; folder into the subst&apos;d drive for later re-use.&lt;/li&gt;&#xd;
+&lt;/ol&gt;&#xd;
+</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>BUILD_DRIVE</name>
+          <description>Physical Build Drive</description>
+          <defaultValue>C:</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>SUBST_DRIVE</name>
+          <description>SUBST drive to be used for the build area</description>
+          <defaultValue>M:</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>RELEASE_ZIP_LOCATION</name>
+          <description>Location where you&apos;ve stored the &lt;a href=&quot;
+http://developer.symbian.org/wiki/index.php/How_to_Build_a_Package#Getting_the_Baseline&quot;/&gt;release zipfiles&lt;/a&gt; (bin*.zip, build_BOM.zip, tools_epoc.zip)
+
+e.g. C:\downloads</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>FBF_REV</name>
+          <description>The tagged version of the FBF (Helium) to use to build the Platform.
+&lt;li&gt;tip - is the latest revision from the web
+&lt;br&gt;&lt;br&gt;
+&lt;i&gt;Its recommended to use the tip revision, however allows a specific revision if needed&lt;/i&gt;
+</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>tip</string>
+              <string>PDK_2.0.2</string>
+              <string>PDK_2.0.1</string>
+              <string>PDK_2.0.0</string>
+              <string>PDK_3.0.e</string>
+              <string>PDK_3.0.d</string>
+              <string>PDK_3.0.c</string>
+              <string>PDK_3.0.b</string>
+              <string>PDK_3.0.a</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers class="vector"/>
+  <concurrentBuild>true</concurrentBuild>
+  <builders>
+    <hudson.tasks.BatchFile>
+      <command>%BUILD_DRIVE%
+cd\
+mkdir %TMP%\sf-bootstrap.%BUILD_NUMBER%
+cd /d %TMP%\sf-bootstrap.%BUILD_NUMBER%
+hg clone http://developer.symbian.org/oss/FCL/interim/fbf/bootstrap
+cd bootstrap
+hlm -f bootstrap.xml -Dsf.project.repo=https://developer.symbian.org/oss/FCL/interim/fbf/projects/packages/ -Dsf.config.repo=http://developer.symbian.org/oss/FCL/interim/fbf/configs/default -Dsf.target.dir=%TMP%\maintools_%BUILD_NUMBER% -Dsf.config.rev=%FBF_REV% -Dsf.project.rev=%FBF_REV%</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>%BUILD_DRIVE%
+cd\
+cd /d %TMP%\maintools_%BUILD_NUMBER%\sf-config
+hlm sf-prep -Dbuild.drive=%SUBST_DRIVE% -Dsf.spec.job.number=%BUILD_NUMBER% -Dsf.spec.baseline.location=%RELEASE_ZIP_LOCATION% -Dsf.spec.job.rootdir=%BUILD_DRIVE% -Dsf.suppress.buildenv.check=true -Dsf.suppress.drive.space.check=true -Dsf.project.type=package -Dsf.subproject.path=build -Dsf.spec.publish.enable=false</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>%SUBST_DRIVE%
+cd\
+mkdir tmp
+copy %RELEASE_ZIP_LOCATION%\build_BOM.zip %SUBST_DRIVE%\tmp
+copy %RELEASE_ZIP_LOCATION%\*bin*.zip %SUBST_DRIVE%\tmp
+copy %RELEASE_ZIP_LOCATION%\src_*.zip %SUBST_DRIVE%\tmp
+copy %RELEASE_ZIP_LOCATION%\tools_*.zip %SUBST_DRIVE%\tmp
+%SUBST_DRIVE%
+cd %SUBST_DRIVE%\tmp
+@ECHO ** Zip files available to unpack -
+dir
+@ECHO OFF
+7z x *.zip -o.. -y
+cd..
+7z x *.zip -y
+del *.zip
+exit 0</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>@ECHO Copying FBF tools to build drive, %SUBST_DRIVE%
+@ECHO OFF
+cd /d %TMP%
+xcopy /s /q maintools_%BUILD_NUMBER% %SUBST_DRIVE%\maintools\
+@ECHO ** Drive %SUBST_DRIVE% has been prepared. To reuse this area later, just re-subst it.</command>
+    </hudson.tasks.BatchFile>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+  <customWorkspace>D:\</customWorkspace>
+</project>

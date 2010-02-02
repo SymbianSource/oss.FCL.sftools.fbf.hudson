@@ -1,0 +1,133 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>&lt;img align=&quot;center&quot; src=&quot;http://developer.symbian.org/img/skin1209/header_bg.gif&quot; /&gt;&#xd;
+&lt;h3&gt;Description&lt;/h3&gt;&#xd;
+&lt;p&gt;This project builds a specified package against a build environment created using the &lt;b&gt;FBF_PrepareEnvironment&lt;/b&gt; project (using the &lt;a href=&quot;http://developer.symbian.org/wiki/index.php/Build_machinery#Helium_.2F_Foundation_Build_Framework&quot;/&gt;Foundation Build Framework (Helium)&lt;/a&gt;). The project can build the specified package from source already unzipped in the environment, or you can specify that you want the source cloned from Mercurial (this will be done at the correct revision as specified in the BOM)&lt;/p&gt;&#xd;
+&#xd;
+&lt;h3&gt;Prerequisites&lt;/h3&gt;&#xd;
+&lt;ol&gt;&#xd;
+&lt;li&gt;Run the &lt;b&gt;FBF_PrepareEnvironment&lt;/b&gt; project to prepare a build drive (your PC must satisfy all the FBF_PrepareEnvironment project preconditions). The build drive should have a &apos;maintools&apos; folder in the root as a result of running FBF_PrepareEnvironment&lt;/li&gt;&#xd;
+&lt;li&gt;If you wish to use a pre-prepared build that is no longer mapped to a drive, then you will need to &lt;tt&gt;subst&lt;/tt&gt; the build folder on the physical build drive - for example to &lt;tt&gt;subst&lt;/tt&gt; a folder on C: drive to M:&#xd;
+&lt;pre&gt;cd C:\unique_build_directory_created_by_FBF_PrepareEnvironment\&#xd;
+subst M: .&#xd;
+&lt;/pre&gt;&lt;/li&gt; &#xd;
+&lt;/ol&gt;&#xd;
+&#xd;
+&lt;h3&gt;Operation&lt;/h3&gt;&#xd;
+&lt;p&gt;The project will perform the following operations on the specified &lt;tt&gt;subst&lt;/tt&gt; drive:&lt;/p&gt;&#xd;
+&lt;ol&gt;&#xd;
+&lt;li&gt;(If requested) clone the source for the specified package from the web, at the revision in the BOM if GET_PACKAGE_SOURCE is specified.&lt;/li&gt;&#xd;
+&lt;li&gt;Compile the specified package (on cloned or pre-extracted source)&lt;/li&gt;&#xd;
+&lt;li&gt;Run post build reporting.&lt;/li&gt;&#xd;
+&lt;/ol&gt;&#xd;
+&#xd;
+&lt;h3&gt;Results&lt;/h3&gt;&#xd;
+&lt;p&gt;When Hudson reports success, this means that it ran to completion. You still need to look at build reports to identify if there are issues in your build. Post build reporting output is available in the following locations:&lt;/p&gt;&#xd;
+&lt;ol&gt;&#xd;
+&lt;li&gt;\output\logs\html\index.html&#xd;
+&lt;li&gt;\output\logs\analysis\&#xd;
+&lt;/ol&gt;</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>SUBST_DRIVE</name>
+          <description>Subst&apos;d EPOC drive, containing
+&lt;li&gt;epoc32 folder
+&lt;li&gt;FBF maintools folder</description>
+          <defaultValue>M:</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>GET_PACKAGE_SOURCE</name>
+          <description>Clone the package from the web.
+&lt;li&gt;Replaces any existing source folder for this package
+&lt;li&gt;Requires HG_USERNAME and HG_PASSWORD</description>
+          <defaultValue>false</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>HG_USERNAME</name>
+          <description>Enter your symbian developer web username &lt;i&gt;(required for download of packages from BOM)&lt;/i&gt;</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.PasswordParameterDefinition>
+          <name>HG_PASSWORD</name>
+          <description>Enter your Mercurial symbian developer web password  &lt;i&gt;(required for download of packages from BOM&lt;/i&gt;
+&lt;br&gt;</description>
+          <defaultValue></defaultValue>
+        </hudson.model.PasswordParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>CODELINE</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>Symbian2</string>
+              <string>Symbian3</string>
+              <string>CompilerCompatability</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>PACKAGE</name>
+          <description>Layer and name of package e.g. os/kernelhwsrv</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>TARGET</name>
+          <description>Comma separated list of target(s) to build. Building armv5 targets requires RVCT arm compiler installed. e.g.
+&lt;br&gt;&lt;br&gt;
+&lt;li&gt;tools.whatlog,tools2.whatlog,winscw_udeb.whatlog
+&lt;li&gt;winscw_udeb.whatlog, armv5_urel.whatlog
+&lt;li&gt;armv5.whatlog,winscw.whatlog</description>
+          <defaultValue>winscw_udeb.whatlog</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers class="vector"/>
+  <concurrentBuild>true</concurrentBuild>
+  <builders>
+    <hudson.tasks.BatchFile>
+      <command>IF NOT &quot;%GET_PACKAGE_SOURCE%&quot;==&quot;true&quot; exit 0
+%SUBST_DRIVE%
+cd \
+@ECHO OFF
+IF NOT &quot;%HG_USERNAME%&quot; == &quot;&quot; GOTO USERNAME_OK
+@echo &quot;You must enter a UserName and Password &quot;
+exit 1
+:USERNAME_OK
+IF NOT &quot;%HG_PASSWORD%&quot; == &quot;&quot; GOTO HG_OK
+@echo &quot;You must enter a UserName and Password&quot;
+exit 1
+:HG_OK
+if exist sf\%PACKAGE% (
+    @ECHO ** Moving existing source for %PACKAGE% to %PACKAGE%.%BUILD_NUMBER%
+    move sf\%PACKAGE% sf\%PACKAGE%.%BUILD_NUMBER%
+)
+cd \tmp
+hg clone http://developer.symbian.org/oss/MCL/utilities
+cd\
+\tmp\utilities\clone_packages\clone_all_packages.pl -packagelist \build_info\logs\BOM\build-info.xml -username %HG_USERNAME% -password %HG_PASSWORD% -retries=7 -filter %PACKAGE%</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>%SUBST_DRIVE%
+set HG_PASSWORD=
+cd maintools\sf-config
+hlm sf-build-noprep -Dbuild.drive=%SUBST_DRIVE% -Dsf.spec.job.number=%JOB_NAME%.%BUILD_NUMBER% -Dsf.spec.sbs.config=&quot;%TARGET%&quot; -Dsf.project.type=package -Dsf.subproject.path=%CODELINE%/%PACKAGE% -Dsf.spec.publish.enable=false </command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>@ECHO **
+@ECHO ** Compile logs can be found in %SUBST_DRIVE%\output\logs\                          
+@ECHO ** Build summary can be found at %SUBST_DRIVE%\output\logs\html\index.htm 
+@ECHO **</command>
+    </hudson.tasks.BatchFile>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+  <customWorkspace>D:\</customWorkspace>
+</project>
