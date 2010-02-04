@@ -101,7 +101,8 @@ http://developer.symbian.org/wiki/index.php/How_to_perform_a_platform_build_of_P
     </hudson.model.ParametersDefinitionProperty>
   </properties>
   <scm class="hudson.scm.NullSCM"/>
-  <canRoam>true</canRoam>
+  <assignedNode>master</assignedNode>
+  <canRoam>false</canRoam>
   <disabled>false</disabled>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
   <triggers class="vector"/>
@@ -123,8 +124,10 @@ hg clone http://developer.symbian.org/oss/MCL/utilities</command>
       <command>@echo off
 %SUBST_DRIVE%
 cd \
+echo copying zips from %RELEASE_ZIP_LOCATION% - available zips:
+dir /b %RELEASE_ZIP_LOCATION%\*.zip
 xcopy %RELEASE_ZIP_LOCATION%\build_BOM.zip %SUBST_DRIVE%\tmp /q
-xcopy %RELEASE_ZIP_LOCATION%\*_rndonly*.zip %SUBST_DRIVE%\tmp /q
+xcopy %RELEASE_ZIP_LOCATION%\bin_rndonly*.zip %SUBST_DRIVE%\tmp /q
 xcopy %RELEASE_ZIP_LOCATION%\bin_redist*.zip %SUBST_DRIVE%\tmp /q
 xcopy %RELEASE_ZIP_LOCATION%\binaries_epoc_additional.zip %SUBST_DRIVE%\tmp /q
 xcopy %RELEASE_ZIP_LOCATION%\binaries_bldmefirst.zip %SUBST_DRIVE%\tmp /q
@@ -132,9 +135,12 @@ xcopy %RELEASE_ZIP_LOCATION%\binaries_bldmefirst.zip %SUBST_DRIVE%\tmp /q
 IF %SRC_LOCATION% == BOM goto TOOLSZIP
 xcopy %RELEASE_ZIP_LOCATION%\src_*.zip %SUBST_DRIVE%\tmp /q
 :TOOLSZIP
-IF %REBUILD_TOOLS% == true exit 0
+IF %REBUILD_TOOLS% == true GOTO ZIP_COPY_DONE
 xcopy %RELEASE_ZIP_LOCATION%\binaries_epoc32_stlport.zip %SUBST_DRIVE%\tmp /q
 xcopy %RELEASE_ZIP_LOCATION%\tools_*.zip %SUBST_DRIVE%\tmp /q
+:ZIP_COPY_DONE
+echo %SUBST_DRIVE%\tmp\
+dir /b %SUBST_DRIVE%\tmp\*.zip
 exit 0</command>
     </hudson.tasks.BatchFile>
     <hudson.tasks.BatchFile>
@@ -142,6 +148,7 @@ exit 0</command>
 cd %SUBST_DRIVE%\tmp
 7z x *.zip -o.. -y
 cd..
+dir /b *.zip
 7z x *.zip -y
 del *.zip
 exit 0</command>
@@ -295,9 +302,21 @@ cmd /c sbs -s %SUBST_DRIVE%\build_info\logs\BOM\canonical_system_definition_S60_
       <command>cd %SUBST_DRIVE%
 %SUBST_DRIVE%
 cd\
-IF %PLATFORM% == symbian2 set CENREP_DIR=/epoc32/rom/config/confml_data/s60
-IF %PLATFORM% == symbian3 set CENREP_DIR=/epoc32/rom/config/assets
-%HELIUM_HOME%\..\ConfigurationTool/cli_build.cmd -master_conf s60 -impl %CENREP_DIR% -confml %CENREP_DIR% -ignore_errors</command>
+IF %PLATFORM% == symbian2 GOTO RUN_CENREP
+
+cd \epoc32\rom\config
+cone generate -c convert.confml -o .
+cd \epoc32\tools
+cone generate -p \epoc32\rom\config -o \epoc32\release\winscw\urel\z -c s60_root.confml
+cone generate -p \epoc32\rom\config -o \epoc32\release\winscw\udeb\z -c s60_root.confml
+cone generate -p \epoc32\rom\config -o \epoc32\data\z -c s60_root.confml
+cone generate -p \epoc32\rom\config -o \epoc32\release\winscw\urel\z -c symbianos_root.confml
+cone generate -p \epoc32\rom\config -o \epoc32\release\winscw\udeb\z -c symbianos_root.confml
+cone generate -p \epoc32\rom\config -o \epoc32\data\z -c symbianos_root.confml
+exit 0
+
+:RUN_CENREP
+%HELIUM_HOME%\..\ConfigurationTool/cli_build.cmd -master_conf s60 -impl /epoc32/rom/config/confml_data/s60 -confml /epoc32/rom/config/confml_data/s60 -ignore_errors</command>
     </hudson.tasks.BatchFile>
   </builders>
   <publishers/>
