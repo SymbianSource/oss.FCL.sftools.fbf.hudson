@@ -44,9 +44,21 @@ http://developer.symbian.org/wiki/index.php/How_to_perform_a_platform_build_of_P
           <name>SPLIT_BUILD</name>
           <description>Is the baseline run in two distinct steps (GT+S60). Tick this if -
 &lt;li&gt; Building older Symbian^2 PDKs. e.g. 2.0.d or earlier.
-&lt;li&gt; Building current Symbian^3 PDKs.</description>
-          <defaultValue>true</defaultValue>
+&lt;li&gt; Building older Symbian^3 PDKs. e.g. 3.0.f or earlier.</description>
+          <defaultValue>false</defaultValue>
         </hudson.model.BooleanParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>LOCALISATION</name>
+          <description>Select whether to build more than one set of localised resources
+&lt;li&gt;engineering - just r01, results in quicker build
+&lt;li&gt;western - all defined language ids, build takes longer, but localised resources are created</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>engineering</string>
+              <string>western</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>SRC_LOCATION</name>
           <description>How to get src for building the Platform.
@@ -191,7 +203,7 @@ cd %SUBST_DRIVE%
 %SUBST_DRIVE%
 set HG_PASSWORD=
 cd\
-cmd /c sbs EXPORT %TARGET% --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\os\deviceplatformrelease\sf_config\config\western\group\bld.inf 
+cmd /c sbs EXPORT %TARGET% --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\os\deviceplatformrelease\sf_config\config\%LOCALISATION%\group\bld.inf 
 cmd /c sbs EXPORT %TARGET% --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\os\deviceplatformrelease\sf_config\config\group\bld.inf 
 cmd /c sbs EXPORT %TARGET% --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\os\devicesrv\devicesrv_pub\platform_path_definitions_api\group\bld.inf
 cmd /c sbs EXPORT %TARGET% --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\os\devicesrv\devicesrv_pub\common_platform_security_definitions_api\group\bld.inf
@@ -305,14 +317,14 @@ cd\
 IF %PLATFORM% == symbian2 GOTO RUN_CENREP
 
 cd \epoc32\rom\config
-cone generate -c convert.confml -o .
+cmd /c cone generate -c convert.confml -o .
 cd \epoc32\tools
-cone generate -p \epoc32\rom\config -o \epoc32\release\winscw\urel\z -c s60_root.confml
-cone generate -p \epoc32\rom\config -o \epoc32\release\winscw\udeb\z -c s60_root.confml
-cone generate -p \epoc32\rom\config -o \epoc32\data\z -c s60_root.confml
-cone generate -p \epoc32\rom\config -o \epoc32\release\winscw\urel\z -c symbianos_root.confml
-cone generate -p \epoc32\rom\config -o \epoc32\release\winscw\udeb\z -c symbianos_root.confml
-cone generate -p \epoc32\rom\config -o \epoc32\data\z -c symbianos_root.confml
+cmd /c cone generate -p \epoc32\rom\config -o \epoc32\release\winscw\urel\z -c s60_root.confml
+cmd /c cone generate -p \epoc32\rom\config -o \epoc32\release\winscw\udeb\z -c s60_root.confml
+cmd /c cone generate -p \epoc32\rom\config -o \epoc32\data\z -c s60_root.confml
+cmd /c cone generate -p \epoc32\rom\config -o \epoc32\release\winscw\urel\z -c symbianos_root.confml
+cmd /c cone generate -p \epoc32\rom\config -o \epoc32\release\winscw\udeb\z -c symbianos_root.confml
+cmd /c cone generate -p \epoc32\rom\config -o \epoc32\data\z -c symbianos_root.confml
 exit 0
 
 :RUN_CENREP

@@ -51,11 +51,23 @@ Source for the FBF can be downloaded from the following Mercurial Repositories -
         </hudson.model.BooleanParameterDefinition>
         <hudson.model.BooleanParameterDefinition>
           <name>SPLIT_BUILD</name>
-          <description>Is the baseline run in two distinct steps (GT+S60). Tick this if -
+          <description>Is the baseline run in two distinct steps (GT+S60)? Tick this if -
 &lt;li&gt; Building older Symbian^2 PDKs. e.g. 2.0.d or earlier.
-&lt;li&gt; Building current Symbian^3 PDKs.</description>
-          <defaultValue>true</defaultValue>
+&lt;li&gt; Building older Symbian^3 PDKs. e.g. 3.0.f or earlier</description>
+          <defaultValue>false</defaultValue>
         </hudson.model.BooleanParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>LOCALISATION</name>
+          <description>Select whether to build more than one set of localised resources
+&lt;li&gt;engineering - just r01, results in quicker build
+&lt;li&gt;western - all defined language ids, build takes longer, but localised resources are created</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>engineering</string>
+              <string>western</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>SRC_LOCATION</name>
           <description>How to get src for building the Platform.
@@ -103,7 +115,7 @@ Source for the FBF can be downloaded from the following Mercurial Repositories -
           <description>The tagged version of the FBF (Helium) to use to build the Platform.
 &lt;li&gt;tip - is the latest revision from the web
 &lt;br&gt;&lt;br&gt;
-&lt;i&gt;Unless you want the latest changes, its recommended to use the revision that matches the build_BOM.zip downloaded&lt;/i&gt;
+&lt;i&gt;Unless you want a specific revision, its recommended to use the tip revision of the FBF&lt;/i&gt;
 </description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
@@ -111,6 +123,9 @@ Source for the FBF can be downloaded from the following Mercurial Repositories -
               <string>PDK_2.0.2</string>
               <string>PDK_2.0.1</string>
               <string>PDK_2.0.0</string>
+              <string>PDK_3.0.g</string>
+              <string>PDK_3.0.f</string>
+              <string>PDK_3.0.e</string>
               <string>PDK_3.0.d</string>
               <string>PDK_3.0.c</string>
               <string>PDK_3.0.b</string>
@@ -204,7 +219,7 @@ IF %SPLIT_BUILD% == true set PROJECT=split
 IF %REBUILD_TOOLS% == true set TOOLS_BASELINE_ENABLE=false
 IF %REBUILD_TOOLS% == false set TOOLS_CONFIG=tools2_rel.whatlog
 cd %BUILD_DRIVE%\maintools_%JOB_NAME%.%BUILD_NUMBER%\sf-config
-hlm sf-build-noprep -Dbuild.drive=%SUBST_DRIVE% -Dsf.spec.job.number=%JOB_NAME%.%BUILD_NUMBER% -Dsf.spec.job.codeline=&quot;%SRC_LOCATION%&quot; -Dsf.project.location=%BUILD_DRIVE%\maintools_%JOB_NAME%.%BUILD_NUMBER%\build\config\%PLATFORM%\%PROJECT% -Dsf.spec.splitbuild=%SPLIT_BUILD% -Dsf.spec.sbs.config=&quot;%TARGET%&quot; -Dsf.spec.baseline.enable=%TOOLS_BASELINE_ENABLE% -Dsf.spec.sbs.tools.config=&quot;%TOOLS_CONFIG%&quot; -Dsf.spec.job.rootdir=%BUILD_DRIVE% -Dsf.suppress.buildenv.check=true -Dsf.suppress.drive.space.check=true -Dsf.spec.logs.raptorfilter.enable=false -Dsf.spec.publish.enable=false -Dsf.spec.package.bin.enable=false -Dsf.spec.test.sendpkg.enable=false</command>
+hlm sf-build-noprep -Dbuild.drive=%SUBST_DRIVE% -Dsf.spec.job.number=%JOB_NAME%.%BUILD_NUMBER% -Dsf.spec.job.codeline=&quot;%SRC_LOCATION%&quot; -Dsf.project.location=%BUILD_DRIVE%\maintools_%JOB_NAME%.%BUILD_NUMBER%\build\config\%PLATFORM%\%PROJECT% -Dsf.spec.splitbuild=%SPLIT_BUILD% -Dsf.spec.sbs.config=&quot;%TARGET%&quot; -Dsf.spec.baseline.enable=%TOOLS_BASELINE_ENABLE% -Dsf.spec.sbs.tools.config=&quot;%TOOLS_CONFIG%&quot; -Dsf.spec.job.rootdir=%BUILD_DRIVE% -Dsf.suppress.buildenv.check=true -Dsf.suppress.drive.space.check=true -Dsf.spec.logs.raptorfilter.enable=false -Dsf.spec.publish.enable=false -Dsf.spec.package.bin.enable=false -Dsf.spec.test.sendpkg.enable=false -Dskip.sbs.layer.generation=true</command>
     </hudson.tasks.BatchFile>
   </builders>
   <publishers/>
