@@ -113,13 +113,13 @@ Source for the FBF can be downloaded from the following Mercurial Repositories -
         <hudson.model.ChoiceParameterDefinition>
           <name>FBF_REV</name>
           <description>The tagged version of the FBF (Helium) to use to build the Platform.
-&lt;li&gt;tip - is the latest revision from the web
+&lt;li&gt;default - is the latest revision from the web
 &lt;br&gt;&lt;br&gt;
-&lt;i&gt;Unless you want a specific revision, its recommended to use the tip revision of the FBF&lt;/i&gt;
+&lt;i&gt;Unless you want a specific revision, its recommended to use the &apos;default&apos; revision of the FBF&lt;/i&gt;
 </description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>tip</string>
+              <string>default</string>
               <string>PDK_2.0.2</string>
               <string>PDK_2.0.1</string>
               <string>PDK_2.0.0</string>
