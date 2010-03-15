@@ -1,0 +1,97 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>&lt;img align=&quot;center&quot; src=&quot;http://developer.symbian.org/img/skin1209/header_bg.gif&quot; /&gt;&#xd;
+&lt;h3&gt;Description&lt;/h3&gt;&#xd;
+&lt;p&gt;&#xd;
+This project will download a Symbian Kit based upon the revision provided. It makes use of the &lt;a href=&quot;http://developer.symbian.org/wiki/index.php/How_to_download_a_PDK&quot;&gt;downloadkit.py&lt;/a&gt; tool to download the kit into a target location that you&apos;ve specified.&#xd;
+&lt;/p&gt; &#xd;
+&#xd;
+&lt;h3&gt;Prerequisites&lt;/h3&gt;&#xd;
+The following tools must already be installed and in your PATH -&#xd;
+&lt;br&gt;&lt;br&gt;&#xd;
+&lt;li&gt;&lt;a href=&quot;http://www.activestate.com/activepython/downloads/&quot;&gt;Python&lt;/a&gt; 2.63 or later&#xd;
+&lt;li&gt;&lt;a href=&quot;http://mercurial.selenic.com/ Mercurial&quot;&gt;Mercurial&lt;/a&gt;&#xd;
+&lt;li&gt;&lt;a href=&quot;http://www.7-zip.org/&quot;&gt;7zip&lt;/a&gt;&#xd;
+</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>DOWNLOAD_TO</name>
+          <description>The directory to download the kit zipfiles to</description>
+          <defaultValue>C:\PDK</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>VERSION</name>
+          <description>Label of version to download e.g. 
+&lt;li&gt;2.0.2
+&lt;li&gt;3.0.h</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>NO_SRC</name>
+          <description>Don&apos;t download any of the source code available directly from Mercurial</description>
+          <defaultValue>false</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>NO_WINSCW</name>
+          <description>Don&apos;t download the winscw emulator</description>
+          <defaultValue>false</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>NO_UNZIP</name>
+          <description>Just download, don&apos;t unzip or delete any files</description>
+          <defaultValue>false</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>NO_DELETE</name>
+          <description>Do not delete files after unzipping</description>
+          <defaultValue>true</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>USERNAME</name>
+          <description>Enter your Symbian developer web user name</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.PasswordParameterDefinition>
+          <name>PASSWORD</name>
+          <description>Enter your Symbian developer web password</description>
+          <defaultValue></defaultValue>
+        </hudson.model.PasswordParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers class="vector"/>
+  <concurrentBuild>true</concurrentBuild>
+  <builders>
+    <hudson.tasks.BatchFile>
+      <command>@ECHO OFF
+IF NOT EXIST C:\Symbian\utilities\.hg GOTO CLONE
+hg pull --update -R C:\Symbian\utilities
+GOTO DOWNLOADKIT
+:CLONE
+hg clone https://developer.symbian.org/oss/MCL/utilities/ C:\Symbian\utilities
+:DOWNLOADKIT
+
+mkdir %DOWNLOAD_TO%\%VERSION%
+cd /d %DOWNLOAD_TO%\%VERSION%
+IF &quot;%NO_SRC%&quot;==&quot;true&quot; ( SET NO_SRC=--nosrc) ELSE (SET NO_SRC=)
+IF &quot;%NO_WINSCW%&quot;==&quot;true&quot; ( SET NO_WINSCW=--nowinscw) ELSE (SET NO_WINSCW=)
+IF &quot;%NO_UNZIP%&quot;==&quot;true&quot; ( SET NO_UNZIP=--nounzip) ELSE (SET NO_UNZIP=)
+IF &quot;%NO_DELETE%&quot;==&quot;true&quot; ( SET NO_DELETE=--nodelete) ELSE (SET NO_DELETE=)
+@ECHO ON
+
+C:\Symbian\utilities\downloadkit\downloadkit.py %NO_UNZIP% %NO_SRC% %NO_WINSCW% %NO_DELETE% %VERSION% --username=%USERNAME% --password=%PASSWORD%
+exit 0</command>
+    </hudson.tasks.BatchFile>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+  <customWorkspace>D:\</customWorkspace>
+</project>
