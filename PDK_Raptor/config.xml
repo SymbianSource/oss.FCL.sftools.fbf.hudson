@@ -12,6 +12,9 @@ http://developer.symbian.org/wiki/index.php/How_to_perform_a_platform_build_of_P
 </description>
   <keepDependencies>false</keepDependencies>
   <properties>
+    <hudson.security.AuthorizationMatrixProperty>
+      <useProjectSecurity>false</useProjectSecurity>
+    </hudson.security.AuthorizationMatrixProperty>
     <hudson.model.ParametersDefinitionProperty>
       <parameterDefinitions>
         <hudson.model.StringParameterDefinition>
@@ -25,14 +28,39 @@ http://developer.symbian.org/wiki/index.php/How_to_perform_a_platform_build_of_P
           <defaultValue>M:</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
+          <name>KIT_VERSION</name>
+          <description>Version of the Bill of Materials (BOM), tools and prebuilt binaries to download/build e.g.
+&lt;li&gt;2.0.2
+&lt;li&gt;3.0.h</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>DOWNLOAD_KIT</name>
+          <description>This will download the Bill of Materials (BOM), tools and prebuilt binaries from the web. Select if -
+&lt;li&gt;You havnt downloaded these archives already
+&lt;li&gt;You&apos;re not sure if you have the correct archives</description>
+          <defaultValue>false</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
+        <hudson.model.StringParameterDefinition>
           <name>RELEASE_ZIP_LOCATION</name>
-          <description>Location of &lt;a href=&quot;http://developer.symbian.org/main/tools_and_kits/&quot;&gt;release zipfiles&lt;/a&gt; e.g.
-&lt;li&gt;build_BOM.zip
-&lt;li&gt;tools_epoc.zip
-
+          <description>Location of &lt;a href=&quot;http://developer.symbian.org/main/tools_and_kits/&quot;&gt;release zipfiles&lt;/a&gt;.
+&lt;li&gt;If you&apos;re downloading the kit (above), then archives will be stored in this location - and can be reused later
+&lt;li&gt;If you have the kit downloaded already, then this is its location on disk
 </description>
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>SRC_LOCATION</name>
+          <description>How to get source for building the Platform -
+&lt;li&gt;BOM - download source direct from &lt;a href=&quot;https://developer.symbian.org/oss&quot;&gt;web&lt;/a&gt; using downloaded Bill Of Materials 
+&lt;li&gt;ZIPFILES - unpack source zips such as src_oss_os.zip from specified location on disk</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>BOM</string>
+              <string>ZIPFILES</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
         <hudson.model.BooleanParameterDefinition>
           <name>REBUILD_TOOLS</name>
           <description>Tick this if you want to rebuild &quot;TOOLS&quot; target as well
@@ -59,18 +87,6 @@ http://developer.symbian.org/wiki/index.php/How_to_perform_a_platform_build_of_P
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
-        <hudson.model.ChoiceParameterDefinition>
-          <name>SRC_LOCATION</name>
-          <description>How to get src for building the Platform.
-&lt;li&gt;BOM - download source direct from &lt;a href=&quot;https://developer.symbian.org/oss&quot;&gt;web&lt;/a&gt; using downloaded Bill Of Materials 
-&lt;li&gt;ZIPFILES - unpack source zips such as src_oss_os.zip from specified location on disk</description>
-          <choices class="java.util.Arrays$ArrayList">
-            <a class="string-array">
-              <string>BOM</string>
-              <string>ZIPFILES</string>
-            </a>
-          </choices>
-        </hudson.model.ChoiceParameterDefinition>
         <hudson.model.BooleanParameterDefinition>
           <name>LEGACY_BLDMEFIRST</name>
           <description>Tick this if building older Symbian^2 PDKs. e.g. 2.0.d or earlier.</description>
@@ -83,8 +99,9 @@ http://developer.symbian.org/wiki/index.php/How_to_perform_a_platform_build_of_P
         </hudson.model.StringParameterDefinition>
         <hudson.model.PasswordParameterDefinition>
           <name>HG_PASSWORD</name>
-          <description>Enter your Mercurial symbian developer web password  &lt;i&gt;(required for download of packages from BOM, not needed when using source zip packages)&lt;/i&gt;
-&lt;br&gt;</description>
+          <description>Enter your symbian developer web password  &lt;i&gt;(required for any downloading of packages from BOM)&lt;/i&gt;
+&lt;br&gt;
+Note: Please be aware that your password will be displayed in &lt;b&gt;cleartext&lt;/b&gt; in the top of the console log</description>
           <defaultValue></defaultValue>
         </hudson.model.PasswordParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
@@ -111,15 +128,32 @@ http://developer.symbian.org/wiki/index.php/How_to_perform_a_platform_build_of_P
         </hudson.model.ChoiceParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty/>
+    <hudson.plugins.descriptionsetter.JobByDescription/>
   </properties>
   <scm class="hudson.scm.NullSCM"/>
-  <assignedNode>master</assignedNode>
-  <canRoam>false</canRoam>
+  <canRoam>true</canRoam>
   <disabled>false</disabled>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
   <triggers class="vector"/>
   <concurrentBuild>true</concurrentBuild>
   <builders>
+    <hudson.tasks.BatchFile>
+      <command>@ECHO OFF
+IF &quot;%DOWNLOAD_KIT%&quot;==&quot;false&quot; EXIT 0
+IF &quot;%SRC_LOCATION%&quot;==&quot;BOM&quot; SET DO_SRC_DOWNLOAD=--nosrc
+IF NOT EXIST C:\Symbian\utilities\.hg GOTO CLONE
+hg pull --update -R C:\Symbian\utilities
+GOTO DOWNLOADKIT
+:CLONE
+hg clone https://developer.symbian.org/oss/MCL/utilities/ C:\Symbian\utilities
+:DOWNLOADKIT
+mkdir %RELEASE_ZIP_LOCATION%
+cd /d %RELEASE_ZIP_LOCATION%
+@ECHO ON
+C:\Symbian\utilities\downloadkit\downloadkit.py --nowinscw --noarmv5 --nounzip --progress %DO_SRC_DOWNLOAD% %KIT_VERSION% --username=%HG_USERNAME% --password=%HG_PASSWORD%
+exit 0</command>
+    </hudson.tasks.BatchFile>
     <hudson.tasks.BatchFile>
       <command>%BUILD_DRIVE%
 cd\
@@ -178,7 +212,7 @@ IF NOT &quot;%HG_PASSWORD%&quot; == &quot;&quot; GOTO HG_OK
 echo &quot;You must enter a UserName and Password when using the BOM option&quot;
 exit 1
 :HG_OK
-\tmp\utilities\clone_packages\clone_all_packages.pl -packagelist \build_info\logs\BOM\build-info.xml -username %HG_USERNAME% -password %HG_PASSWORD% -retries=7</command>
+perl \tmp\utilities\clone_packages\clone_all_packages.pl -packagelist \build_info\logs\BOM\build-info.xml -username %HG_USERNAME% -password %HG_PASSWORD% -retries=7</command>
     </hudson.tasks.BatchFile>
     <hudson.tasks.BatchFile>
       <command>IF %LEGACY_BLDMEFIRST% == true exit
@@ -209,7 +243,7 @@ cmd /c sbs EXPORT %TARGET% --ignore-os-detection --export-only -b %SUBST_DRIVE%\
 cmd /c sbs EXPORT %TARGET% --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\os\devicesrv\devicesrv_pub\common_platform_security_definitions_api\group\bld.inf
 cmd /c sbs EXPORT %TARGET% --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\os\devicesrv\commonservices\commonengine\group\bld.inf
 cmd /c sbs EXPORT %TARGET% --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\mw\web\web_plat\browser_platform_api\group\bld.inf
-cmd /c sbs EXPORT %TARGET% --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\tools\homescreentools\dtdinstaller\group\bld.inf</command>
+cmd /c sbs EXPORT %TARGET% --ignore-os-detection --export-only -b %SUBST_DRIVE%\sf\app\homescreentools\dtdinstaller\group\bld.inf</command>
     </hudson.tasks.BatchFile>
     <hudson.tasks.BatchFile>
       <command>IF %LEGACY_BLDMEFIRST% == true exit
