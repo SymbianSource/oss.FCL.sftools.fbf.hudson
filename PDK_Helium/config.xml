@@ -2,15 +2,13 @@
 <project>
   <actions/>
   <description>&lt;h3&gt;Description&lt;/h3&gt;&#xd;
-&lt;li&gt;This project will rebuild the Symbian^2 and Symbian^3 Platform from source using a Bill Of Materials that can be downloaded from the &lt;a href=&quot;http://developer.symbian.org/main/tools_and_kits/&quot;&gt;kits page.&lt;/a&gt;&#xd;
+&lt;li&gt;This project will rebuild the Symbian^2 and Symbian^3 Platform from source using a Bill Of Materials that can either be downloaded from the &lt;a href=&quot;http://developer.symbian.org/main/tools_and_kits/&quot;&gt;kits page&lt;/a&gt; or from within the job itself.&#xd;
 &lt;li&gt;It encapsulates the steps as defined in the &lt;a href=&quot;http://developer.symbian.org/wiki/index.php/How_to_perform_a_platform_build_of_PDK_3.0.b_using_helium&quot;/&gt;manual build process &lt;/a&gt;for Helium and is a simple way to start building using the Foundation Build Framework.&#xd;
 &lt;br&gt;&lt;br&gt;&#xd;
 The Foundation Build Framework (FBF) is an Apache ANT-like configuration that can be used with the Helium tool, delivered in the &lt;a href=&quot;https://developer.symbian.org/main/tools_and_kits/downloads/view.php?id=4&quot;/&gt;PDT&lt;/a&gt;.&#xd;
 &#xd;
 &lt;h3&gt;Prerequisites&lt;/h3&gt;&#xd;
 &lt;li&gt;Installation of mandatory &lt;a href=&quot;http://developer.symbian.org/wiki/index.php/How_to_perform_a_platform_build_of_PDK_3.0.b_using_helium#Installing_Build_Tools&quot;/&gt;build tools&lt;/a&gt;&#xd;
-&lt;li&gt;Download of required (and recommended) &lt;a href=&quot;&#xd;
-http://developer.symbian.org/wiki/index.php/How_to_perform_a_platform_build_of_PDK_3.0.b_using_helium#Getting_the_Baseline&quot;/&gt;zips &lt;/a&gt; from the &lt;a href=&quot;http://developer.symbian.org/main/tools_and_kits/&quot;&gt;kits page.&lt;/a&gt;&#xd;
 &#xd;
 &lt;h3&gt;Additional Information&lt;/h3&gt;&#xd;
 Source for the FBF can be downloaded from the following Mercurial Repositories -&#xd;
@@ -21,6 +19,9 @@ Source for the FBF can be downloaded from the following Mercurial Repositories -
 </description>
   <keepDependencies>false</keepDependencies>
   <properties>
+    <hudson.security.AuthorizationMatrixProperty>
+      <useProjectSecurity>false</useProjectSecurity>
+    </hudson.security.AuthorizationMatrixProperty>
     <hudson.model.ParametersDefinitionProperty>
       <parameterDefinitions>
         <hudson.model.StringParameterDefinition>
@@ -34,6 +35,20 @@ Source for the FBF can be downloaded from the following Mercurial Repositories -
           <defaultValue>M:</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
+          <name>KIT_VERSION</name>
+          <description>Version of the kit to download. e.g.
+&lt;li&gt;2.0.2
+&lt;li&gt;3.0.h</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>DOWNLOAD_KIT</name>
+          <description>This will download the Bill of Materials (BOM), tools and prebuilt binaries from the web. Select if -
+&lt;li&gt;You havnt downloaded these archives already
+&lt;li&gt;You&apos;re not sure if you have the correct archives</description>
+          <defaultValue>false</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
+        <hudson.model.StringParameterDefinition>
           <name>RELEASE_ZIP_LOCATION</name>
           <description>Location of &lt;a href=&quot;http://developer.symbian.org/main/tools_and_kits/&quot;&gt;release zipfiles&lt;/a&gt; e.g.
 &lt;li&gt;build_BOM.zip
@@ -42,6 +57,18 @@ Source for the FBF can be downloaded from the following Mercurial Repositories -
 </description>
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>SRC_LOCATION</name>
+          <description>How to get source for building the Platform -
+&lt;li&gt;BOM - download source direct from &lt;a href=&quot;https://developer.symbian.org/oss&quot;&gt;web&lt;/a&gt; using downloaded Bill Of Materials 
+&lt;li&gt;ZIPFILES - unpack source zips such as src_oss_os.zip from specified location on disk</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>BOM</string>
+              <string>ZIPFILES</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
         <hudson.model.BooleanParameterDefinition>
           <name>REBUILD_TOOLS</name>
           <description>Tick this if you want to rebuild &quot;TOOLS&quot; target as well
@@ -68,27 +95,16 @@ Source for the FBF can be downloaded from the following Mercurial Repositories -
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
-        <hudson.model.ChoiceParameterDefinition>
-          <name>SRC_LOCATION</name>
-          <description>How to get src for building the Platform.
-&lt;li&gt;BOM - download source direct from &lt;a href=&quot;https://developer.symbian.org/oss&quot;&gt;web&lt;/a&gt; using downloaded Bill Of Materials 
-&lt;li&gt;ZIPFILES - unpack source zips such as src_oss_os.zip from specified location on disk</description>
-          <choices class="java.util.Arrays$ArrayList">
-            <a class="string-array">
-              <string>BOM</string>
-              <string>ZIPFILES</string>
-            </a>
-          </choices>
-        </hudson.model.ChoiceParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>HG_USERNAME</name>
-          <description>Enter your symbian developer web username &lt;i&gt;(required for download of packages from BOM, not needed when using source zip packages)&lt;/i&gt;</description>
+          <description>Enter your symbian developer web username &lt;i&gt;(required for any downloading of packages from BOM)&lt;/i&gt;</description>
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.PasswordParameterDefinition>
           <name>HG_PASSWORD</name>
-          <description>Enter your Mercurial symbian developer web password  &lt;i&gt;(required for download of packages from BOM, not needed when using source zip packages)&lt;/i&gt;
-&lt;br&gt;</description>
+          <description>Enter your symbian developer web password  &lt;i&gt;(required for any downloading of packages from BOM)&lt;/i&gt;
+&lt;br&gt;
+Note: Please be aware that your password will be displayed in &lt;b&gt;cleartext&lt;/b&gt; in the top of the console log</description>
           <defaultValue></defaultValue>
         </hudson.model.PasswordParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
@@ -123,6 +139,7 @@ Source for the FBF can be downloaded from the following Mercurial Repositories -
               <string>PDK_2.0.2</string>
               <string>PDK_2.0.1</string>
               <string>PDK_2.0.0</string>
+              <string>PDK_3.0.h</string>
               <string>PDK_3.0.g</string>
               <string>PDK_3.0.f</string>
               <string>PDK_3.0.e</string>
@@ -135,6 +152,8 @@ Source for the FBF can be downloaded from the following Mercurial Repositories -
         </hudson.model.ChoiceParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty/>
+    <hudson.plugins.descriptionsetter.JobByDescription/>
   </properties>
   <scm class="hudson.scm.NullSCM"/>
   <canRoam>true</canRoam>
@@ -143,6 +162,22 @@ Source for the FBF can be downloaded from the following Mercurial Repositories -
   <triggers class="vector"/>
   <concurrentBuild>true</concurrentBuild>
   <builders>
+    <hudson.tasks.BatchFile>
+      <command>@ECHO OFF
+IF &quot;%DOWNLOAD_KIT%&quot;==&quot;false&quot; EXIT 0
+IF &quot;%SRC_LOCATION%&quot;==&quot;BOM&quot; SET DO_SRC_DOWNLOAD=--nosrc
+IF NOT EXIST C:\Symbian\utilities\.hg GOTO CLONE
+hg pull --update -R C:\Symbian\utilities
+GOTO DOWNLOADKIT
+:CLONE
+hg clone https://developer.symbian.org/oss/MCL/utilities/ C:\Symbian\utilities
+:DOWNLOADKIT
+mkdir %RELEASE_ZIP_LOCATION%
+cd /d %RELEASE_ZIP_LOCATION%
+@ECHO ON
+C:\Symbian\utilities\downloadkit\downloadkit.py --nounzip --nowinscw --noarmv5 --progress %DO_SRC_DOWNLOAD% %KIT_VERSION% --username=%HG_USERNAME% --password=%HG_PASSWORD%
+exit 0</command>
+    </hudson.tasks.BatchFile>
     <hudson.tasks.BatchFile>
       <command>%BUILD_DRIVE%
 cd\
