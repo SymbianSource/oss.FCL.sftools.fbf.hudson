@@ -2,15 +2,18 @@
 <project>
   <actions/>
   <description>&lt;h3&gt;Description&lt;/h3&gt;&#xd;
-&lt;li&gt;This project will rebuild the Symbian^3 Platform from source using a Bill Of Materials that can either be downloaded from the &lt;a href=&quot;http://developer.symbian.org/main/tools_and_kits/&quot;&gt;kits page&lt;/a&gt; or from within the job itself.&#xd;
-&lt;li&gt;It encapsulates the steps as defined in the &lt;a href=&quot;http://developer.symbian.org/wiki/index.php/How_to_perform_a_platform_build_of_PDK_3.0.b_using_helium&quot;/&gt;manual build process &lt;/a&gt;for Helium and is a simple way to start building using the Foundation Build Framework.&#xd;
+&lt;li&gt;This project will rebuild the Symbian^3 Platform from source using a Bill Of Materials that can either be downloaded from the &lt;a href=&quot;http://developer.symbian.org/main/tools_and_kits/&quot;&gt;kits page&lt;/a&gt; or from within the job itself using the &lt;a href=&quot;http://developer.symbian.org/wiki/index.php/Foundation_Build_Framework&quot;/&gt; Foundation Build Framework (FBF)&lt;/a&gt;&#xd;
+&lt;li&gt;It encapsulates the steps as defined in the &lt;a href=&quot;http://developer.symbian.org/wiki/index.php/Foundation_Build_Framework/How_to_build_the_Platform&quot;/&gt;manual build process &lt;/a&gt;for Helium and is a simple way to start building using the &lt;a href=&quot;http://developer.symbian.org/wiki/index.php/Foundation_Build_Framework&quot;/&gt; Foundation Build Framework (FBF)&lt;/a&gt;&#xd;
 &lt;br&gt;&lt;br&gt;&#xd;
 The Foundation Build Framework (FBF) is an Apache ANT-like configuration that can be used with the Helium tool, delivered in the &lt;a href=&quot;https://developer.symbian.org/main/tools_and_kits/downloads/view.php?id=4&quot;/&gt;PDT&lt;/a&gt;.&#xd;
 &#xd;
 &lt;h3&gt;Prerequisites&lt;/h3&gt;&#xd;
-&lt;li&gt;Installation of mandatory &lt;a href=&quot;http://developer.symbian.org/wiki/index.php/How_to_perform_a_platform_build_of_PDK_3.0.b_using_helium#Installing_Build_Tools&quot;/&gt;build tools&lt;/a&gt;&#xd;
+&lt;li&gt;Installation of mandatory &lt;a href=&quot;http://developer.symbian.org/wiki/index.php/Foundation_Build_Framework/How_to_build_the_Platform#Step_1:_Setup_your_Environment&quot;/&gt;build tools&lt;/a&gt;&#xd;
 &#xd;
 &lt;h3&gt;Additional Information&lt;/h3&gt;&#xd;
+&lt;li&gt;Foundation Build Framework &lt;a href=&quot;http://developer.symbian.org/wiki/index.php/Foundation_Build_Framework/Frequently_Asked_Questions&quot;/&gt;FAQ&lt;/a&gt;&#xd;
+&lt;li&gt;Foundation Build Framework &lt;a href=&quot;http://developer.symbian.org/wiki/index.php/Foundation_Build_Framework/Troubleshooting&quot;/&gt;Troubleshooting guide&lt;/a&gt;&#xd;
+&lt;br&gt;&lt;br&gt;&#xd;
 Source for the FBF can be downloaded from the following Mercurial Repositories -&#xd;
 &lt;br&gt;&#xd;
 &lt;li&gt;FBF Configuration - &lt;a href=&quot;http://developer.symbian.org/oss/MCL/sftools/fbf/configs/default&quot;/&gt;http://developer.symbian.org/oss/MCL/sftools/fbf/configs/default/&lt;/a&gt;&#xd;
@@ -19,6 +22,9 @@ Source for the FBF can be downloaded from the following Mercurial Repositories -
 </description>
   <keepDependencies>false</keepDependencies>
   <properties>
+    <hudson.security.AuthorizationMatrixProperty>
+      <useProjectSecurity>false</useProjectSecurity>
+    </hudson.security.AuthorizationMatrixProperty>
     <hudson.model.ParametersDefinitionProperty>
       <parameterDefinitions>
         <hudson.model.StringParameterDefinition>
@@ -45,12 +51,21 @@ Source for the FBF can be downloaded from the following Mercurial Repositories -
         <hudson.model.StringParameterDefinition>
           <name>KIT_VERSION</name>
           <description>Version of the BOM to download. e.g.
-&lt;li&gt;2.0.2
-&lt;li&gt;3.0.h
+&lt;li&gt;3.0.0
 &lt;br&gt;
 &lt;b&gt;Mandatory&lt;/b&gt; if downloading the BOM from the web.</description>
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>HG_USERNAME</name>
+          <description>Enter your symbian developer web username &lt;i&gt;(required for any downloading of packages from BOM)&lt;/i&gt;</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.PasswordParameterDefinition>
+          <name>HG_PASSWORD</name>
+          <description>Enter your symbian developer web password  &lt;i&gt;(required for downloading of prebuilt binaries, tools and BOM)&lt;/i&gt;</description>
+          <defaultValue></defaultValue>
+        </hudson.model.PasswordParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>RELEASE_ZIP_LOCATION</name>
           <description>Location of &lt;a href=&quot;http://developer.symbian.org/main/tools_and_kits/&quot;&gt;release zipfiles&lt;/a&gt; e.g.
@@ -63,23 +78,14 @@ If building a BOM that you have already downloaded, then this is the &lt;b&gt;ex
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
-          <name>SRC_LOCATION</name>
-          <description>How to get source for building the Platform -
-&lt;li&gt;BOM - download source direct from &lt;a href=&quot;https://developer.symbian.org/oss&quot;&gt;web&lt;/a&gt; as described in downloaded Bill Of Materials 
-&lt;li&gt;ZIPFILES - unpack source zips such as src_oss_os.zip from specified (RELEASE_ZIP_LOCATION) location on disk. If selecting DOWNLOAD_KIT option, then it will unpack the source zips that have just been downloaded.</description>
+          <name>SUB_PROJECT</name>
+          <description></description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>BOM</string>
-              <string>ZIPFILES</string>
+              <string>symbian3/single</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
-        <hudson.model.BooleanParameterDefinition>
-          <name>REBUILD_TOOLS</name>
-          <description>Tick this if you want to rebuild &quot;TOOLS&quot;
-&lt;li&gt; Requires comercial VC++ 6.0 installed</description>
-          <defaultValue>false</defaultValue>
-        </hudson.model.BooleanParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>LOCALISATION</name>
           <description>Select whether to build more than one set of localised resources
@@ -92,28 +98,12 @@ If building a BOM that you have already downloaded, then this is the &lt;b&gt;ex
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>HG_USERNAME</name>
-          <description>Enter your symbian developer web username &lt;i&gt;(required for any downloading of packages from BOM)&lt;/i&gt;</description>
-          <defaultValue></defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.PasswordParameterDefinition>
-          <name>HG_PASSWORD</name>
-          <description>Enter your symbian developer web password  &lt;i&gt;(required for any downloading of packages from BOM)&lt;/i&gt;
-&lt;br&gt;
-Note: Please be aware that your password will be displayed in &lt;b&gt;cleartext&lt;/b&gt; in the top of the console log</description>
-          <defaultValue></defaultValue>
-        </hudson.model.PasswordParameterDefinition>
-        <hudson.model.ChoiceParameterDefinition>
-          <name>PLATFORM</name>
-          <description></description>
-          <choices class="java.util.Arrays$ArrayList">
-            <a class="string-array">
-              <string>symbian3</string>
-              <string>symbian2</string>
-            </a>
-          </choices>
-        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>USE_PREBUILT_TOOLS</name>
+          <description>Select this if you want to use the prebuilt tools. Only unselect this if you want to rebuild tools -
+&lt;li&gt; Note: Rebuild requires comercial VC++ 6.0 to be installed</description>
+          <defaultValue>true</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>TARGET</name>
           <description>Comma separated list of target(s) to build. Building armv5 targets requires RVCT arm compiler installed.
@@ -126,14 +116,17 @@ Note: Please be aware that your password will be displayed in &lt;b&gt;cleartext
         <hudson.model.StringParameterDefinition>
           <name>FBF_REV</name>
           <description>The tagged version of the FBF (Helium) to use to build the Platform.
-&lt;li&gt;default - is the latest revision from the web
-&lt;li&gt;PDK_3.0.h - for 3.0.h revision etc.
+&lt;li&gt;default - for the latest development revision from the web (may be unstable)
+&lt;li&gt;PDK_3.0.0 - for 3.0.0 revision
+&lt;li&gt;S3_LATESTGOOD - for the latest Symbian^3 stable revision
 &lt;br&gt;&lt;br&gt;
-&lt;i&gt;Unless you want a specific revision, its recommended to use the &apos;default&apos; revision of the FBF&lt;/i&gt;</description>
-          <defaultValue>default</defaultValue>
+&lt;i&gt;Unless you want a specific revision, its recommended to use the &apos;S3_LATESTGOOD&apos; revision of the FBF, as this will be a stable version&lt;/i&gt;</description>
+          <defaultValue>S3_LATESTGOOD</defaultValue>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty/>
+    <hudson.plugins.descriptionsetter.JobByDescription/>
   </properties>
   <scm class="hudson.scm.NullSCM"/>
   <canRoam>true</canRoam>
@@ -145,7 +138,6 @@ Note: Please be aware that your password will be displayed in &lt;b&gt;cleartext
     <hudson.tasks.BatchFile>
       <command>@ECHO OFF
 IF &quot;%DOWNLOAD_KIT%&quot;==&quot;false&quot; EXIT 0
-IF &quot;%SRC_LOCATION%&quot;==&quot;BOM&quot; SET DO_SRC_DOWNLOAD=--nosrc
 IF NOT EXIST C:\Symbian\utilities\.hg GOTO CLONE
 hg pull --update -R C:\Symbian\utilities
 GOTO DOWNLOADKIT
@@ -154,8 +146,11 @@ hg clone https://developer.symbian.org/oss/MCL/utilities/ C:\Symbian\utilities
 :DOWNLOADKIT
 mkdir %RELEASE_ZIP_LOCATION%
 cd /d %RELEASE_ZIP_LOCATION%
+C:\Symbian\utilities\downloadkit\downloadkit.py --nounzip --nowinscw --noarmv5 --progress --nosrc %KIT_VERSION% --username=%HG_USERNAME% --password=%HG_PASSWORD% &gt; %TMP%\downloadkit.out.%BUILD_NUMBER%
 @ECHO ON
-C:\Symbian\utilities\downloadkit\downloadkit.py --nounzip --nowinscw --noarmv5 --progress %DO_SRC_DOWNLOAD% %KIT_VERSION% --username=%HG_USERNAME% --password=%HG_PASSWORD% 
+type %TMP%\downloadkit.out.%BUILD_NUMBER%
+@ECHO OFF
+del %TMP%\downloadkit.out.%BUILD_NUMBER%
 exit 0</command>
     </hudson.tasks.BatchFile>
     <hudson.tasks.BatchFile>
@@ -171,71 +166,8 @@ rd %TMP%\sf-bootstrap.%BUILD_NUMBER% /q/s</command>
     <hudson.tasks.BatchFile>
       <command>%BUILD_DRIVE%
 cd\
-set HG_PASSWORD=
-set PROJECT=single
-set TOOLS_BASELINE_ENABLE=true
-set TOOLS_CONFIG=tools_rel.whatlog,tools2_rel.whatlog
-IF %REBUILD_TOOLS% == true set TOOLS_BASELINE_ENABLE=false
-IF %REBUILD_TOOLS% == false set TOOLS_CONFIG=tools2_rel.whatlog
 cd %BUILD_DRIVE%\maintools_%JOB_NAME%.%BUILD_NUMBER%\sf-config
-hlm sf-prep -Dbuild.drive=%SUBST_DRIVE% -Dsf.spec.job.number=%JOB_NAME%.%BUILD_NUMBER% -Dsf.spec.job.codeline=&quot;%SRC_LOCATION%&quot; -Dsf.project.location=%BUILD_DRIVE%\maintools_%JOB_NAME%.%BUILD_NUMBER%\build\config\%PLATFORM%\%PROJECT% -Dsf.spec.splitbuild=false -Dsf.spec.sbs.config=&quot;%TARGET%&quot; -Dsf.spec.baseline.enable=%TOOLS_BASELINE_ENABLE% -Dsf.spec.sbs.tools.config=&quot;%TOOLS_CONFIG%&quot; -Dsf.spec.job.rootdir=%BUILD_DRIVE% -Dsf.suppress.buildenv.check=true -Dsf.suppress.drive.space.check=true -Dsf.spec.logs.raptorfilter.enable=false -Dsf.spec.publish.enable=false -Dsf.spec.package.bin.enable=false -Dsf.spec.test.sendpkg.enable=false -Dskip.sbs.layer.generation=true -Dsf.spec.bldmefirst.s60.variant=%LOCALISATION%</command>
-    </hudson.tasks.BatchFile>
-    <hudson.tasks.BatchFile>
-      <command>%SUBST_DRIVE%
-cd\
-mkdir tmp
-copy %RELEASE_ZIP_LOCATION%\build_BOM.zip %SUBST_DRIVE%\tmp
-
-REM for releases prior to 3.0.i replace binaries_prebuilt.zip with binaries_epoc_additional.zip 
-copy %RELEASE_ZIP_LOCATION%\binaries_prebuilt.zip %SUBST_DRIVE%\tmp
-
-rem copy %RELEASE_ZIP_LOCATION%\binaries_bldmefirst.zip %SUBST_DRIVE%\tmp
-copy %RELEASE_ZIP_LOCATION%\*_rndonly*.zip %SUBST_DRIVE%\tmp
-copy %RELEASE_ZIP_LOCATION%\bin_redist*.zip %SUBST_DRIVE%\tmp
-IF %SRC_LOCATION% == BOM goto TOOLSZIP
-copy %RELEASE_ZIP_LOCATION%\src_*.zip %SUBST_DRIVE%\tmp
-:TOOLSZIP
-IF %REBUILD_TOOLS% == true goto UNZIP
-copy %RELEASE_ZIP_LOCATION%\binaries_epoc32_stlport.zip %SUBST_DRIVE%\tmp
-copy %RELEASE_ZIP_LOCATION%\tools_*.zip %SUBST_DRIVE%\tmp
-:UNZIP
-%SUBST_DRIVE%
-cd %SUBST_DRIVE%\tmp
-7z x *.zip -o.. -y
-cd..
-7z x *.zip -y
-del *.zip
-exit 0</command>
-    </hudson.tasks.BatchFile>
-    <hudson.tasks.BatchFile>
-      <command>%SUBST_DRIVE%
-cd \
-hg clone http://developer.symbian.org/oss/MCL/sftools/fbf/utilities/
-IF NOT %SRC_LOCATION% == BOM exit
-cd \
-@ECHO OFF
-IF NOT &quot;%HG_USERNAME%&quot; == &quot;&quot; GOTO USERNAME_OK
-echo &quot;You must enter a UserName and Password when using the BOM option&quot;
-exit 1
-:USERNAME_OK
-IF NOT &quot;%HG_PASSWORD%&quot; == &quot;&quot; GOTO HG_OK
-echo &quot;You must enter a UserName and Password when using the BOM option&quot;
-exit 1
-:HG_OK
-cd\
-perl \utilities\clone_packages\clone_all_packages.pl -packagelist \build_info\logs\BOM\build-info.xml -username %HG_USERNAME% -password %HG_PASSWORD% -retries=7</command>
-    </hudson.tasks.BatchFile>
-    <hudson.tasks.BatchFile>
-      <command>%BUILD_DRIVE%
-cd\
-set HG_PASSWORD=
-set PROJECT=single
-set TOOLS_BASELINE_ENABLE=true
-set TOOLS_CONFIG=tools_rel.whatlog,tools2_rel.whatlog
-IF %REBUILD_TOOLS% == true set TOOLS_BASELINE_ENABLE=false
-IF %REBUILD_TOOLS% == false set TOOLS_CONFIG=tools2_rel.whatlog
-cd %BUILD_DRIVE%\maintools_%JOB_NAME%.%BUILD_NUMBER%\sf-config
-hlm sf-build-noprep -Dbuild.drive=%SUBST_DRIVE% -Dsf.spec.job.number=%JOB_NAME%.%BUILD_NUMBER% -Dsf.spec.job.codeline=&quot;%SRC_LOCATION%&quot; -Dsf.project.location=%BUILD_DRIVE%\maintools_%JOB_NAME%.%BUILD_NUMBER%\build\config\%PLATFORM%\%PROJECT% -Dsf.spec.splitbuild=false -Dsf.spec.sbs.config=&quot;%TARGET%&quot; -Dsf.spec.baseline.enable=%TOOLS_BASELINE_ENABLE% -Dsf.spec.sbs.tools.config=&quot;%TOOLS_CONFIG%&quot; -Dsf.spec.job.rootdir=%BUILD_DRIVE% -Dsf.suppress.buildenv.check=true -Dsf.suppress.drive.space.check=true -Dsf.spec.logs.raptorfilter.enable=false -Dsf.spec.publish.enable=false -Dsf.spec.package.bin.enable=false -Dsf.spec.test.sendpkg.enable=false -Dskip.sbs.layer.generation=true -Dsf.spec.bldmefirst.s60.variant=%LOCALISATION%</command>
+hlm sf-build -Dsf.spec.job.drive=%SUBST_DRIVE% -Dsf.spec.job.number=%JOB_NAME%.%BUILD_NUMBER% -Dsf.subproject.path=%SUB_PROJECT% -Dsf.spec.toolsbaseline.enable=%USE_PREBUILT_TOOLS% -Dsf.spec.sbs.config=&quot;%TARGET%&quot; -Dsf.spec.sbs.tools.config=&quot;tools.whatlog,tools2.whatlog&quot;  -Dsf.spec.job.rootdir=%BUILD_DRIVE% -Dsf.suppress.buildenv.check=true -Dsf.suppress.drive.space.check=true -Dsf.spec.bldmefirst.s60.variant=%LOCALISATION% -Dsf.spec.baseline.location=&quot;%RELEASE_ZIP_LOCATION%&quot;</command>
     </hudson.tasks.BatchFile>
   </builders>
   <publishers/>
